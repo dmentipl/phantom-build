@@ -25,7 +25,7 @@ def get_phantom(phantom_dir: pathlib.Path):
     if not phantom_dir.exists():
         print('Cloning fresh copy of Phantom')
         subprocess.check_output(
-            ['git', 'clone', 'git@bitbucket.org:danielprice/phantom'],
+            ['git', 'clone', 'git@bitbucket.org:danielprice/phantom', phantom_dir.stem],
             cwd=phantom_dir.parent,
         )
     else:
