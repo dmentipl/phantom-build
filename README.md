@@ -3,7 +3,11 @@ Phantom build
 
 > phantom-build is designed to make building Phantom easier.
 
-The main aim is to have reproducible Phantom builds for writing reproducible papers.
+The main aim is to have reproducible [Phantom](https://phantomsph.bitbucket.io/) builds for writing reproducible papers.
+
+[![Build Status](https://travis-ci.org/dmentipl/phantom-build.svg?branch=master)](https://travis-ci.org/dmentipl/phantom-build)
+[![Coverage Status](https://coveralls.io/repos/github/dmentipl/phantom-build/badge.svg?branch=master)](https://coveralls.io/github/dmentipl/phantom-build?branch=master)
+[![PyPI](https://img.shields.io/pypi/v/phantombuild)](https://pypi.org/project/phantombuild/)
 
 Install
 -------
@@ -25,7 +29,7 @@ Import phantom-build
 
 phantom-build has four main functions:
 
-- `get_phantom` is used to clone Phantom from bitbucket, or to check if it is already cloned.
+- `get_phantom` is used to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if it is already cloned.
 - `check_phantom_version` is used to check out a particular Phantom version based on a git commit hash.
 - `patch_phantom` is used to apply patches.
 - `build_phantom` is for compiling Phantom with particular Makefile options.
@@ -33,27 +37,35 @@ phantom-build has four main functions:
 Examples
 --------
 
-Here we check out a particular version of Phantom based on the git commit hash.
+### A reproducible Phantom paper
+
+Say you want to have a reproducible Phantom build for a paper. You want to work from a particular version of Phantom, and you need to apply patches to that version.
+
+1) First, clone Phantom.
 
 ```python
 # Clone Phantom
 phantom_dir = pathlib.Path('~/repos/phantom').expanduser()
 pb.get_phantom(phantom_dir)
+```
 
+2) Now, check out a particular version of Phantom based on the git commit hash.
+
+```python
 # Checkout particular commit
 required_phantom_git_commit_hash = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 pb.check_phantom_version(phantom_dir, required_phantom_git_commit_hash)
 ```
 
-Then we apply a patch.
+3) Then, apply your patch.
 
 ```python
 # Apply patch
-phantom_patch = CODE_DIR / 'dustybox.patch'
+phantom_patch = pathlib.Path('my-phantom.patch')
 pb.patch_phantom(phantom_dir, phantom_patch)
 ```
 
-Now we build Phantom with particular Makefile options.
+4) Now, build Phantom with particular Makefile options.
 
 ```python
 # Makefile options
@@ -71,3 +83,5 @@ pb.build_phantom(
     extra_makefile_options
 )
 ```
+
+You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config).
