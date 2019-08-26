@@ -49,23 +49,18 @@ def get_phantom(phantom_dir: pathlib.Path):
 
 
 def check_phantom_version(
-    phantom_dir: pathlib.Path,
-    required_phantom_git_sha: str,
-    phantom_patch: pathlib.Path,
+    phantom_dir: pathlib.Path, required_phantom_git_commit_hash: str
 ):
     """
-    Check Phantom version, and apply patches if required.
+    Check Phantom version.
 
     Parameters
     ----------
     phantom_dir : pathlib.Path
         The path to the Phantom repository.
 
-    required_phantom_git_sha : str
-        The required Phantom git SHA.
-
-    phantom_patch : pathlib.Path
-        The path to the patch file, if required.
+    required_phantom_git_commit_hash : str
+        The required Phantom git commit hash.
     """
 
     print('')
@@ -74,14 +69,14 @@ def check_phantom_version(
     print('------------------------------------------------------------------------')
     print('')
 
-    # Check git commit SHA
-    phantom_git_sha = subprocess.run(
+    # Check git commit hash
+    phantom_git_commit_hash = subprocess.run(
         ['git', 'rev-parse', 'HEAD'], cwd=phantom_dir, stdout=subprocess.PIPE, text=True
     ).stdout.strip()
-    if phantom_git_sha != required_phantom_git_sha:
-        print(f'Checking out Phantom version: {required_phantom_git_sha}')
+    if phantom_git_commit_hash != required_phantom_git_commit_hash:
+        print(f'Checking out Phantom version: {required_phantom_git_commit_hash}')
         subprocess.run(
-            ['git', 'checkout', required_phantom_git_sha],
+            ['git', 'checkout', required_phantom_git_commit_hash],
             cwd=phantom_dir,
             stdout=subprocess.PIPE,
         )
@@ -96,10 +91,7 @@ def check_phantom_version(
         text=True,
     ).stdout.strip()
     if not git_status == '':
-        if phantom_patch is None:
-            print('Cleaning repository')
-        else:
-            print('Cleaning repository to apply patches')
+        print('Cleaning repository')
         subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir, stout=subprocess.PIPE)
         subprocess.run(
             ['git', 'clean', '--force'], cwd=phantom_dir, stout=subprocess.PIPE
@@ -108,12 +100,31 @@ def check_phantom_version(
             ['git', 'restore', '--', '*'], cwd=phantom_dir, stout=subprocess.PIPE
         )
 
-    # Apply patch
-    if phantom_patch is not None:
-        print('Applying patch to Phantom')
-        subprocess.run(
-            ['git', 'apply', phantom_patch], cwd=phantom_dir, stdout=subprocess.PIPE
-        )
+
+def patch_phantom(phantom_dir: pathlib.Path, phantom_patch: pathlib.Path):
+    """
+    Apply patch to Phantom.
+
+    Parameters
+    ----------
+    phantom_dir : pathlib.Path
+        The path to the Phantom repository.
+
+    phantom_patch : pathlib.Path
+        The path to the patch file, if required.
+    """
+
+    print('')
+    print('------------------------------------------------------------------------')
+    print('>>> Applying patch to Phantom <<<')
+    print('------------------------------------------------------------------------')
+    print('')
+
+    result = subprocess.run(
+        ['git', 'apply', phantom_patch], cwd=phantom_dir, stdout=subprocess.PIPE
+    )
+    if result.returncode != 0:
+        raise PatchError('Cannot patch Phantom')
 
 
 def build_phantom(
