@@ -20,22 +20,27 @@ def get_phantom(phantom_dir: pathlib.Path):
         The path to the Phantom repository.
     """
 
+    print('')
+    print('------------------------------------------------------------------------')
     print('>>> Getting Phantom <<<')
+    print('------------------------------------------------------------------------')
+    print('')
 
     if not phantom_dir.exists():
         print('Cloning fresh copy of Phantom')
-        subprocess.check_output(
+        subprocess.run(
             ['git', 'clone', 'git@bitbucket.org:danielprice/phantom', phantom_dir.stem],
             cwd=phantom_dir.parent,
+            stdout=subprocess.PIPE,
         )
     else:
         if not (
-            subprocess.check_output(
+            subprocess.run(
                 ['git', 'config', '--local', '--get', 'remote.origin.url'],
                 cwd=phantom_dir,
-            )
-            .strip()
-            .decode()
+                stdout=subprocess.PIPE,
+                text=True,
+            ).stdout.strip()
             == 'git@bitbucket.org:danielprice/phantom'
         ):
             raise ValueError('phantom_dir is not Phantom')
@@ -63,41 +68,52 @@ def check_phantom_version(
         The path to the patch file, if required.
     """
 
+    print('')
+    print('------------------------------------------------------------------------')
     print('>>> Checking Phantom version <<<')
+    print('------------------------------------------------------------------------')
+    print('')
 
     # Check git commit SHA
-    phantom_git_sha = (
-        subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=phantom_dir)
-        .strip()
-        .decode()
-    )
+    phantom_git_sha = subprocess.run(
+        ['git', 'rev-parse', 'HEAD'], cwd=phantom_dir, stdout=subprocess.PIPE, text=True
+    ).stdout.strip()
     if phantom_git_sha != required_phantom_git_sha:
         print(f'Checking out Phantom version: {required_phantom_git_sha}')
-        subprocess.check_output(
-            ['git', 'checkout', required_phantom_git_sha], cwd=phantom_dir
+        subprocess.run(
+            ['git', 'checkout', required_phantom_git_sha],
+            cwd=phantom_dir,
+            stdout=subprocess.PIPE,
         )
     else:
         print('Required version of Phantom already checked out')
 
     # Check if clean
-    git_status = (
-        subprocess.check_output(['git', 'status', '--porcelain'], cwd=phantom_dir)
-        .strip()
-        .decode()
-    )
+    git_status = subprocess.run(
+        ['git', 'status', '--porcelain'],
+        cwd=phantom_dir,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()
     if not git_status == '':
         if phantom_patch is None:
             print('Cleaning repository')
         else:
             print('Cleaning repository to apply patches')
-        subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir)
-        subprocess.run(['git', 'clean', '--force'], cwd=phantom_dir)
-        subprocess.run(['git', 'restore', '--', '*'], cwd=phantom_dir)
+        subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir, stout=subprocess.PIPE)
+        subprocess.run(
+            ['git', 'clean', '--force'], cwd=phantom_dir, stout=subprocess.PIPE
+        )
+        subprocess.run(
+            ['git', 'restore', '--', '*'], cwd=phantom_dir, stout=subprocess.PIPE
+        )
 
     # Apply patch
     if phantom_patch is not None:
         print('Applying patch to Phantom')
-        subprocess.check_output(['git', 'apply', phantom_patch], cwd=phantom_dir)
+        subprocess.run(
+            ['git', 'apply', phantom_patch], cwd=phantom_dir, stdout=subprocess.PIPE
+        )
 
 
 def build_phantom(
@@ -130,7 +146,11 @@ def build_phantom(
         should be strings only.
     """
 
+    print('')
+    print('------------------------------------------------------------------------')
     print('>>> Building Phantom <<<')
+    print('------------------------------------------------------------------------')
+    print('')
 
     if not hdf5_location.exists():
         raise FileNotFoundError('Cannot determine HDF5 library location')
