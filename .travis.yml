@@ -3,6 +3,11 @@ language: python
 python:
   - "3.7"
 
+addons:
+  apt:
+    packages:
+      - gfortran
+
 install:
   - pip install black coverage coveralls
 
