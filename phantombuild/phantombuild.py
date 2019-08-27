@@ -29,7 +29,12 @@ def get_phantom(phantom_dir: pathlib.Path):
     if not phantom_dir.exists():
         print('Cloning fresh copy of Phantom')
         subprocess.run(
-            ['git', 'clone', 'git@bitbucket.org:danielprice/phantom', phantom_dir.stem],
+            [
+                'git',
+                'clone',
+                'https://bitbucket.org/danielprice/phantom.git',
+                phantom_dir.stem,
+            ],
             cwd=phantom_dir.parent,
             stdout=subprocess.PIPE,
         )
@@ -41,7 +46,10 @@ def get_phantom(phantom_dir: pathlib.Path):
                 stdout=subprocess.PIPE,
                 text=True,
             ).stdout.strip()
-            == 'git@bitbucket.org:danielprice/phantom'
+            in [
+                'git@bitbucket.org:danielprice/phantom',
+                'https://bitbucket.org/danielprice/phantom.git',
+            ]
         ):
             raise ValueError('phantom_dir is not Phantom')
         else:
