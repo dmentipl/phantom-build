@@ -30,7 +30,7 @@ Import phantom-build
 phantom-build has four main functions:
 
 - `get_phantom` is used to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if it is already cloned.
-- `check_phantom_version` is used to check out a particular Phantom version based on a git commit hash.
+- `checkout_phantom_version` is used to check out a particular Phantom version based on a git commit hash.
 - `patch_phantom` is used to apply patches.
 - `build_phantom` is for compiling Phantom with particular Makefile options.
 
@@ -54,7 +54,7 @@ pb.get_phantom(phantom_dir)
 ```python
 # Checkout particular commit
 required_phantom_git_commit_hash = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-pb.check_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
 ```
 
 3) Then, apply your patch.

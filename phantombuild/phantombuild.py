@@ -56,11 +56,11 @@ def get_phantom(phantom_dir: pathlib.Path):
             print('Phantom already cloned')
 
 
-def check_phantom_version(
+def checkout_phantom_version(
     phantom_dir: pathlib.Path, required_phantom_git_commit_hash: str
 ):
     """
-    Check Phantom version.
+    Check out a particular Phantom version.
 
     Parameters
     ----------

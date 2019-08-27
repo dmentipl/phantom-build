@@ -20,10 +20,10 @@ class TestGetPhantom(unittest.TestCase):
             pb.get_phantom(phantom_dir)
 
 
-class TestCheckPhantom(unittest.TestCase):
-    """Test checking Phantom version."""
+class TestCheckoutPhantom(unittest.TestCase):
+    """Test checking out a Phantom version."""
 
-    def test_check_phantom_version(self):
+    def test_checkout_phantom_version(self):
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             phantom_dir = pathlib.Path(tmpdirname) / 'phantom_dir'
@@ -31,7 +31,7 @@ class TestCheckPhantom(unittest.TestCase):
             required_phantom_git_commit_hash = (
                 '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
             )
-            pb.check_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
 
 
 class TestPhantomPatch(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestPhantomPatch(unittest.TestCase):
             required_phantom_git_commit_hash = (
                 '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
             )
-            pb.check_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
             phantom_patch = pathlib.Path(__file__).parent / 'stub' / 'test.patch'
             pb.patch_phantom(phantom_dir, phantom_patch)
 
