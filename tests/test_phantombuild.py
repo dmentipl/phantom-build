@@ -58,9 +58,7 @@ class TestBuildPhantom(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdirname:
             phantom_dir = pathlib.Path(tmpdirname) / 'phantom_dir'
             pb.get_phantom(phantom_dir)
-            pb.build_phantom(
-                phantom_dir, 'dustybox', 'gfortran', None, None
-            )
+            pb.build_phantom(phantom_dir, 'dustybox', 'gfortran', None, None)
 
 
 if __name__ == '__main__':
