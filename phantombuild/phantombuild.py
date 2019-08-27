@@ -27,7 +27,7 @@ def get_phantom(phantom_dir: pathlib.Path):
     print('')
 
     if not phantom_dir.exists():
-        print('Cloning fresh copy of Phantom')
+        print('... cloning fresh copy of Phantom ...\n')
         subprocess.run(
             [
                 'git',
@@ -36,7 +36,6 @@ def get_phantom(phantom_dir: pathlib.Path):
                 phantom_dir.stem,
             ],
             cwd=phantom_dir.parent,
-            stdout=subprocess.PIPE,
         )
     else:
         if not (
@@ -53,7 +52,7 @@ def get_phantom(phantom_dir: pathlib.Path):
         ):
             raise ValueError('phantom_dir is not Phantom')
         else:
-            print('Phantom already cloned')
+            print('... Phantom already cloned ...\n')
 
 
 def checkout_phantom_version(
@@ -82,14 +81,15 @@ def checkout_phantom_version(
         ['git', 'rev-parse', 'HEAD'], cwd=phantom_dir, stdout=subprocess.PIPE, text=True
     ).stdout.strip()
     if phantom_git_commit_hash != required_phantom_git_commit_hash:
-        print(f'Checking out Phantom version: {required_phantom_git_commit_hash}')
+        print(
+            '... checking out Phantom version: '
+            f'{required_phantom_git_commit_hash} ...\n'
+        )
         subprocess.run(
-            ['git', 'checkout', required_phantom_git_commit_hash],
-            cwd=phantom_dir,
-            stdout=subprocess.PIPE,
+            ['git', 'checkout', required_phantom_git_commit_hash], cwd=phantom_dir
         )
     else:
-        print('Required version of Phantom already checked out')
+        print('... required version of Phantom already checked out ...\n')
 
     # Check if clean
     git_status = subprocess.run(
@@ -99,14 +99,10 @@ def checkout_phantom_version(
         text=True,
     ).stdout.strip()
     if not git_status == '':
-        print('Cleaning repository')
-        subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir, stout=subprocess.PIPE)
-        subprocess.run(
-            ['git', 'clean', '--force'], cwd=phantom_dir, stout=subprocess.PIPE
-        )
-        subprocess.run(
-            ['git', 'restore', '--', '*'], cwd=phantom_dir, stout=subprocess.PIPE
-        )
+        print('... cleaning repository ...\n')
+        subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir)
+        subprocess.run(['git', 'clean', '--force'], cwd=phantom_dir)
+        subprocess.run(['git', 'restore', '--', '*'], cwd=phantom_dir)
 
 
 def patch_phantom(phantom_dir: pathlib.Path, phantom_patch: pathlib.Path):
@@ -182,10 +178,12 @@ def build_phantom(
     if extra_makefile_options is not None:
         make_command += [key + '=' + val for key, val in extra_makefile_options.items()]
 
-    with open(phantom_dir / 'build' / 'build-output.log', 'w') as fp:
+    build_log = phantom_dir / 'build' / 'build_output.log'
+    with open(build_log, 'w') as fp:
         result = subprocess.run(make_command, cwd=phantom_dir, stdout=fp, stderr=fp)
 
     if result.returncode != 0:
         raise CompileError('Phantom failed compiling')
 
-    print('Phantom successfully built. See "build-output.log" in Phantom build dir.')
+    print('... Phantom successfully built ...\n')
+    print(f'... see "{build_log.name}" in Phantom build dir ...\n')
