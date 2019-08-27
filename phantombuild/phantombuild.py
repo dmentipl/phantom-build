@@ -158,7 +158,8 @@ def build_phantom(
         'gfortran' or 'ifort'.
 
     hdf5_location : pathlib.Path
-        The path to the HDF5 installation.
+        The path to the HDF5 installation, or if None, do not compile
+        with HDF5.
 
     extra_makefile_options : dict
         Extra options to pass to make. This values in this dictionary
@@ -171,18 +172,12 @@ def build_phantom(
     print('------------------------------------------------------------------------')
     print('')
 
-    if not hdf5_location.exists():
-        raise FileNotFoundError('Cannot determine HDF5 library location')
+    make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system, 'phantom', 'setup']
 
-    make_command = [
-        'make',
-        'SETUP=' + setup,
-        'SYSTEM=' + system,
-        'HDF5=yes',
-        'HDF5ROOT=' + str(hdf5_location),
-        'phantom',
-        'setup',
-    ]
+    if hdf5_location is not None:
+        if not hdf5_location.exists():
+            raise FileNotFoundError('Cannot determine HDF5 library location')
+        make_command += ['HDF5=yes', 'HDF5ROOT=' + str(hdf5_location.resolve())]
 
     if extra_makefile_options is not None:
         make_command += [key + '=' + val for key, val in extra_makefile_options.items()]

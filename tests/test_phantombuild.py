@@ -50,5 +50,18 @@ class TestPhantomPatch(unittest.TestCase):
             pb.patch_phantom(phantom_dir, phantom_patch)
 
 
+class TestBuildPhantom(unittest.TestCase):
+    """Test building Phantom."""
+
+    def test_build_phantom(self):
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            phantom_dir = pathlib.Path(tmpdirname) / 'phantom_dir'
+            pb.get_phantom(phantom_dir)
+            pb.build_phantom(
+                phantom_dir, 'dustybox', 'gfortran', None, None
+            )
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
