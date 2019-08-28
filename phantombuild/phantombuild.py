@@ -2,11 +2,19 @@ import pathlib
 import subprocess
 
 
+class RepoError(Exception):
+    pass
+
+
 class PatchError(Exception):
     pass
 
 
 class CompileError(Exception):
+    pass
+
+
+class HDF5LibraryNotFound(Exception):
     pass
 
 
@@ -50,7 +58,7 @@ def get_phantom(phantom_dir: pathlib.Path):
                 'https://bitbucket.org/danielprice/phantom.git',
             ]
         ):
-            raise ValueError('phantom_dir is not Phantom')
+            raise RepoError('phantom_dir is not Phantom')
         else:
             print('... Phantom already cloned ...\n')
 
@@ -72,7 +80,7 @@ def checkout_phantom_version(
 
     print('')
     print('------------------------------------------------------------------------')
-    print('>>> Checking Phantom version <<<')
+    print('>>> Checking out required Phantom version <<<')
     print('------------------------------------------------------------------------')
     print('')
 
@@ -102,7 +110,7 @@ def checkout_phantom_version(
         print('... cleaning repository ...\n')
         subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir)
         subprocess.run(['git', 'clean', '--force'], cwd=phantom_dir)
-        subprocess.run(['git', 'restore', '--', '*'], cwd=phantom_dir)
+        subprocess.run(['git', 'checkout', '--', '*'], cwd=phantom_dir)
 
 
 def patch_phantom(phantom_dir: pathlib.Path, phantom_patch: pathlib.Path):
@@ -172,7 +180,7 @@ def build_phantom(
 
     if hdf5_location is not None:
         if not hdf5_location.exists():
-            raise FileNotFoundError('Cannot determine HDF5 library location')
+            raise HDF5LibraryNotFound('Cannot determine HDF5 library location')
         make_command += ['HDF5=yes', 'HDF5ROOT=' + str(hdf5_location.resolve())]
 
     if extra_makefile_options is not None:
