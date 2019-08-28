@@ -46,7 +46,7 @@ def get_phantom(phantom_dir: pathlib.Path):
                 text=True,
             ).stdout.strip()
             in [
-                'git@bitbucket.org:danielprice/phantom',
+                'git@bitbucket.org:danielprice/phantom.git',
                 'https://bitbucket.org/danielprice/phantom.git',
             ]
         ):
