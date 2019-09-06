@@ -110,7 +110,7 @@ def get_phantom(phantom_dir: pathlib.Path) -> bool:
 
 
 def checkout_phantom_version(
-    phantom_dir: pathlib.Path, required_phantom_git_commit_hash: str
+    *, phantom_dir: pathlib.Path, required_phantom_git_commit_hash: str
 ) -> bool:
     """
     Check out a particular Phantom version.
@@ -181,7 +181,7 @@ def checkout_phantom_version(
     return True
 
 
-def patch_phantom(phantom_dir: pathlib.Path, phantom_patch: pathlib.Path) -> bool:
+def patch_phantom(*, phantom_dir: pathlib.Path, phantom_patch: pathlib.Path) -> bool:
     """
     Apply patch to Phantom.
 
@@ -301,4 +301,7 @@ def _nice_path(path: pathlib.Path) -> str:
     try:
         return '~' + str(path.relative_to(pathlib.Path.home()))
     except ValueError:
-        return './' + str(path)
+        if path.anchor == '/':
+            return str(path)
+        else:
+            return './' + str(path)

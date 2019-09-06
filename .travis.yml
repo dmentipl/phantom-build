@@ -9,11 +9,13 @@ addons:
       - gfortran
 
 install:
-  - pip install black coverage coveralls
+  - pip install black coverage coveralls isort mypy
 
 script:
   - python -m coverage run -m unittest discover
+  - isort --check-only -rc
   - black --check --skip-string-normalization .
+  - mypy phantombuild tests
 
 after_success:
   - coveralls

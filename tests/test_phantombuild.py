@@ -39,8 +39,14 @@ class TestCheckoutPhantom(unittest.TestCase):
             required_phantom_git_commit_hash = (
                 '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
             )
-            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
-            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+            pb.checkout_phantom_version(
+                phantom_dir=phantom_dir,
+                required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+            )
+            pb.checkout_phantom_version(
+                phantom_dir=phantom_dir,
+                required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+            )
 
     def test_checkout_phantom_version_dirty(self):
 
@@ -51,7 +57,10 @@ class TestCheckoutPhantom(unittest.TestCase):
                 '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
             )
             (phantom_dir / 'src/main/phantom.F90').unlink()
-            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+            pb.checkout_phantom_version(
+                phantom_dir=phantom_dir,
+                required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+            )
 
 
 class TestPhantomPatch(unittest.TestCase):
@@ -65,10 +74,14 @@ class TestPhantomPatch(unittest.TestCase):
             required_phantom_git_commit_hash = (
                 '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
             )
-            pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+            pb.checkout_phantom_version(
+                phantom_dir=phantom_dir,
+                required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+            )
             phantom_patch = pathlib.Path(__file__).parent / 'stub' / 'test.patch'
-            pb.patch_phantom(phantom_dir, phantom_patch)
-            self.assertRaises(PatchError, pb.patch_phantom, phantom_dir, phantom_patch)
+            pb.patch_phantom(phantom_dir=phantom_dir, phantom_patch=phantom_patch)
+            kwargs = {'phantom_dir': phantom_dir, 'phantom_patch': phantom_patch}
+            self.assertRaises(PatchError, pb.patch_phantom, **kwargs)
 
 
 class TestBuildPhantom(unittest.TestCase):
@@ -81,26 +94,24 @@ class TestBuildPhantom(unittest.TestCase):
             hdf5_location = pathlib.Path('non_existent_dir')
             pb.get_phantom(phantom_dir)
             pb.build_phantom(
-                phantom_dir, 'empty', 'gfortran', None, {'MAXP': '1000000'}
+                phantom_dir=phantom_dir,
+                setup='empty',
+                system='gfortran',
+                extra_makefile_options={'MAXP': '1000000'},
             )
-            self.assertRaises(
-                HDF5LibraryNotFound,
-                pb.build_phantom,
-                phantom_dir,
-                'empty',
-                'gfortran',
-                hdf5_location,
-                None,
-            )
-            self.assertRaises(
-                CompileError,
-                pb.build_phantom,
-                phantom_dir,
-                'FakeSetup',
-                'gfortran',
-                None,
-                None,
-            )
+            kwargs = {
+                'phantom_dir': phantom_dir,
+                'setup': 'empty',
+                'system': 'gfortran',
+                'hdf5_location': hdf5_location,
+            }
+            self.assertRaises(HDF5LibraryNotFound, pb.build_phantom, **kwargs)
+            kwargs = {
+                'phantom_dir': phantom_dir,
+                'setup': 'FakeSetup',
+                'system': 'gfortran',
+            }
+            self.assertRaises(CompileError, pb.build_phantom, **kwargs)
 
 
 if __name__ == '__main__':
