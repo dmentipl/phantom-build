@@ -14,7 +14,7 @@ Install
 
 Install phantom-build with pip
 
-```
+```bash
 pip install phantombuild
 ```
 
@@ -24,7 +24,7 @@ Usage
 Import phantom-build
 
 ```python
->>> import phantombuild as pb
+>>> import phantombuild
 ```
 
 phantom-build has four main functions:
@@ -46,7 +46,7 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     ```python
     # Clone Phantom
     phantom_dir = pathlib.Path('~/repos/phantom').expanduser()
-    pb.get_phantom(phantom_dir)
+    phantombuild.get_phantom(phantom_dir=phantom_dir)
     ```
 
 2. Now, check out a particular version of Phantom based on the git commit hash.
@@ -54,7 +54,10 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     ```python
     # Checkout particular commit
     required_phantom_git_commit_hash = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-    pb.checkout_phantom_version(phantom_dir, required_phantom_git_commit_hash)
+    phantombuild.checkout_phantom_version(
+        phantom_dir=phantom_dir,
+        required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+    )
     ```
 
 3. Then, apply your patch.
@@ -62,7 +65,10 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     ```python
     # Apply patch
     phantom_patch = pathlib.Path('my-phantom.patch')
-    pb.patch_phantom(phantom_dir, phantom_patch)
+    phantombuild.patch_phantom(
+        phantom_dir=phantom_dir,
+        phantom_patch=phantom_patch,
+    )
     ```
 
 4. Now, build Phantom with particular Makefile options.
@@ -75,13 +81,13 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     hdf5_location = pathlib.Path('/usr/local/opt/hdf5')
 
     # Compile Phantom
-    pb.build_phantom(
-        phantom_dir,
-        setup,
-        system,
-        hdf5_location,
-        extra_makefile_options
+    phantombuild.build_phantom(
+        phantom_dir=phantom_dir,
+        setup=setup,
+        system=system,
+        hdf5_location=hdf5_location,
+        extra_makefile_options=extra_makefile_options,
     )
     ```
 
-You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config).
+You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations, see [phantom-setup](https://github.com/dmentipl/phantom-setup).
