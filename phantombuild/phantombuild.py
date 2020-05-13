@@ -1,6 +1,10 @@
+"""Phantom build."""
+
 import logging
 import pathlib
 import subprocess
+from logging import Logger
+from pathlib import Path
 from typing import Dict
 
 
@@ -20,15 +24,15 @@ class HDF5LibraryNotFound(Exception):
     """Cannot find HDF5 library."""
 
 
-def setup_logger(filename: pathlib.Path = None) -> logging.Logger:
+def _setup_logger(filename: Path = None) -> Logger:
 
     if filename is None:
-        filename = pathlib.Path('phantom-build.log')
+        filename = pathlib.Path('~/.phantom-build.log').expanduser()
 
     logger = logging.getLogger('phantom-build')
 
     console_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler(filename, mode='w')
+    file_handler = logging.FileHandler(filename, mode='a')
 
     console_format = logging.Formatter('%(name)s %(levelname)s: %(message)s')
     file_format = logging.Formatter(
@@ -45,16 +49,15 @@ def setup_logger(filename: pathlib.Path = None) -> logging.Logger:
     return logger
 
 
-LOGGER = setup_logger()
+LOGGER = _setup_logger()
 
 
-def get_phantom(phantom_dir: pathlib.Path) -> bool:
-    """
-    Get Phantom repository.
+def get_phantom(phantom_dir: Path) -> bool:
+    """Get Phantom repository.
 
     Parameters
     ----------
-    phantom_dir : pathlib.Path
+    phantom_dir
         The path to the Phantom repository.
 
     Returns
@@ -62,8 +65,6 @@ def get_phantom(phantom_dir: pathlib.Path) -> bool:
     bool
         Success or fail as boolean.
     """
-
-    LOGGER.info('')
     LOGGER.info('------------------------------------------------')
     LOGGER.info('>>> Getting Phantom')
     LOGGER.info('------------------------------------------------')
@@ -82,7 +83,7 @@ def get_phantom(phantom_dir: pathlib.Path) -> bool:
         )
         if result.returncode != 0:
             LOGGER.info('Phantom clone failed')
-            raise RepoError('Fail to close repo')
+            raise RepoError('Fail to clone repo')
         else:
             LOGGER.info('Phantom successfully cloned')
     else:
@@ -110,17 +111,15 @@ def get_phantom(phantom_dir: pathlib.Path) -> bool:
 
 
 def checkout_phantom_version(
-    *, phantom_dir: pathlib.Path, required_phantom_git_commit_hash: str
+    *, phantom_dir: Path, required_phantom_git_commit_hash: str
 ) -> bool:
-    """
-    Check out a particular Phantom version.
+    """Check out a particular Phantom version.
 
     Parameters
     ----------
-    phantom_dir : pathlib.Path
+    phantom_dir
         The path to the Phantom repository.
-
-    required_phantom_git_commit_hash : str
+    required_phantom_git_commit_hash
         The required Phantom git commit hash.
 
     Returns
@@ -128,8 +127,6 @@ def checkout_phantom_version(
     bool
         Success or fail as boolean.
     """
-
-    LOGGER.info('')
     LOGGER.info('------------------------------------------------')
     LOGGER.info('>>> Checking out required Phantom version')
     LOGGER.info('------------------------------------------------')
@@ -181,16 +178,14 @@ def checkout_phantom_version(
     return True
 
 
-def patch_phantom(*, phantom_dir: pathlib.Path, phantom_patch: pathlib.Path) -> bool:
-    """
-    Apply patch to Phantom.
+def patch_phantom(*, phantom_dir: Path, phantom_patch: Path) -> bool:
+    """Apply patch to Phantom.
 
     Parameters
     ----------
-    phantom_dir : pathlib.Path
+    phantom_dir
         The path to the Phantom repository.
-
-    phantom_patch : pathlib.Path
+    phantom_patch
         The path to the patch file, if required.
 
     Returns
@@ -198,8 +193,6 @@ def patch_phantom(*, phantom_dir: pathlib.Path, phantom_patch: pathlib.Path) -> 
     bool
         Success or fail as boolean.
     """
-
-    LOGGER.info('')
     LOGGER.info('------------------------------------------------')
     LOGGER.info('>>> Applying patch to Phantom')
     LOGGER.info('------------------------------------------------')
@@ -218,32 +211,27 @@ def patch_phantom(*, phantom_dir: pathlib.Path, phantom_patch: pathlib.Path) -> 
 
 def build_phantom(
     *,
-    phantom_dir: pathlib.Path,
+    phantom_dir: Path,
     setup: str,
     system: str,
-    hdf5_location: pathlib.Path = None,
+    hdf5_location: Path = None,
     extra_makefile_options: Dict[str, str] = None,
 ) -> bool:
-    """
-    Build Phantom.
+    """Build Phantom.
 
     Parameters
     ----------
-    phantom_dir : pathlib.Path
+    phantom_dir
         The path to the Phantom repository.
-
-    setup : str
+    setup
         The Phantom setup, e.g. 'disc', 'dustybox', etc.
-
-    system : str
+    system
         The compiler as specified in the Phantom makefile, e.g.
         'gfortran' or 'ifort'.
-
-    hdf5_location : pathlib.Path
+    hdf5_location
         The path to the HDF5 installation, or if None, do not compile
         with HDF5.
-
-    extra_makefile_options : dict
+    extra_makefile_options
         Extra options to pass to make. This values in this dictionary
         should be strings only.
 
@@ -252,8 +240,6 @@ def build_phantom(
     bool
         Success or fail as boolean.
     """
-
-    LOGGER.info('')
     LOGGER.info('------------------------------------------------')
     LOGGER.info('>>> Building Phantom')
     LOGGER.info('------------------------------------------------')
@@ -274,6 +260,7 @@ def build_phantom(
 
     if result.returncode != 0:
         LOGGER.info('Phantom failed to compile')
+        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
         raise CompileError('Phantom failed to compile')
     else:
         LOGGER.info('Successfully compiled Phantom')
@@ -282,15 +269,14 @@ def build_phantom(
     return True
 
 
-def _nice_path(path: pathlib.Path) -> str:
-    """
-    Convert absolute path to a string relative to '~', i.e. $HOME.
+def _nice_path(path: Path) -> str:
+    """Convert absolute path to a string relative to '~', i.e. $HOME.
 
     E.g. '/Users/user/dir/file.txt' is converted to '~/dir/file.txt'.
 
     Parameters
     ----------
-    path : pathlib.Path
+    path
         The path to convert.
 
     Returns
