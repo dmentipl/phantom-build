@@ -14,7 +14,14 @@ from .phantombuild import (
     checkout_phantom_version,
     get_phantom,
     patch_phantom,
+    setup_calculation,
 )
 
-__all__ = ['get_phantom', 'checkout_phantom_version', 'patch_phantom', 'build_phantom']
+__all__ = [
+    'get_phantom',
+    'checkout_phantom_version',
+    'patch_phantom',
+    'build_phantom',
+    'setup_calculation',
+]
 __version__ = '0.1.4'
