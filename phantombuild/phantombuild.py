@@ -262,7 +262,7 @@ def build_phantom(
 
     _phantom_dir = _resolved_path(phantom_dir)
 
-    make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system, 'phantom', 'setup']
+    make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system]
 
     if hdf5_location is not None:
         _hdf5_location = _resolved_path(hdf5_location)
@@ -283,6 +283,20 @@ def build_phantom(
         raise CompileError('Phantom failed to compile')
     else:
         LOGGER.info('Successfully compiled Phantom')
+        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
+
+    build_log = _phantom_dir / 'build' / 'build_output.log'
+    with open(build_log, 'a') as fp:
+        result = subprocess.run(
+            make_command + ['setup'], cwd=_phantom_dir, stdout=fp, stderr=fp
+        )
+
+    if result.returncode != 0:
+        LOGGER.info('Phantomsetup failed to compile')
+        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
+        raise CompileError('Phantomsetup failed to compile')
+    else:
+        LOGGER.info('Successfully compiled Phantomsetup')
         LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
 
     return True
