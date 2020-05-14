@@ -340,18 +340,19 @@ def setup_calculation(
     shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
 
     with open(_run_dir / f'{prefix}00.log', mode='w') as f:
-        result = subprocess.Popen(
+        process = subprocess.Popen(
             ['./phantomsetup', prefix],
             cwd=_run_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
         )
-        for line in result.stdout:
+        for line in process.stdout:
             sys.stdout.write(line)
             f.write(line)
 
-    if result.returncode != 0:
+    process.communicate()[0]
+    if process.returncode != 0:
         LOGGER.info('Phantom failed to set up calculation')
         raise SetupError('Phantom failed to set up calculation')
     else:
