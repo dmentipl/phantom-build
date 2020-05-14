@@ -1,7 +1,7 @@
 Phantom build
 =============
 
-> phantom-build is designed to make building Phantom easier.
+> phantom-build: make building Phantom easier.
 
 The main aim is to have reproducible [Phantom](https://phantomsph.bitbucket.io/) builds for writing reproducible papers.
 
@@ -17,6 +17,8 @@ Install phantom-build with pip
 ```bash
 pip install phantombuild
 ```
+
+There are no requirements other than Python 3.7 or greater.
 
 Usage
 -----
