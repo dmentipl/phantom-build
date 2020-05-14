@@ -61,7 +61,7 @@ def _setup_logger(filename: Path = None) -> Logger:
 logger = _setup_logger()
 
 
-def get_phantom(phantom_dir: Path) -> bool:
+def get_phantom(phantom_dir: Union[Path, str]) -> bool:
     """Get Phantom repository.
 
     Parameters
@@ -119,7 +119,7 @@ def get_phantom(phantom_dir: Path) -> bool:
 
 
 def checkout_phantom_version(
-    *, phantom_dir: Path, required_phantom_git_commit_hash: str
+    *, phantom_dir: Union[Path, str], required_phantom_git_commit_hash: str
 ) -> bool:
     """Check out a particular Phantom version.
 
@@ -190,7 +190,9 @@ def checkout_phantom_version(
     return True
 
 
-def patch_phantom(*, phantom_dir: Path, phantom_patch: Path) -> bool:
+def patch_phantom(
+    *, phantom_dir: Union[Path, str], phantom_patch: Union[Path, str]
+) -> bool:
     """Apply patch to Phantom.
 
     Parameters
@@ -224,10 +226,10 @@ def patch_phantom(*, phantom_dir: Path, phantom_patch: Path) -> bool:
 
 def build_phantom(
     *,
-    phantom_dir: Path,
+    phantom_dir: Union[Path, str],
     setup: str,
     system: str,
-    hdf5_location: Path = None,
+    hdf5_location: Union[Path, str] = None,
     extra_makefile_options: Dict[str, str] = None,
 ) -> bool:
     """Build Phantom.
@@ -317,7 +319,11 @@ def build_phantom(
 
 
 def setup_calculation(
-    *, prefix: str, run_dir: Path, input_dir: Path, phantom_dir: Path
+    *,
+    prefix: str,
+    run_dir: Union[Path, str],
+    input_dir: Union[Path, str],
+    phantom_dir: Union[Path, str],
 ) -> bool:
     """Set up Phantom calculation.
 
