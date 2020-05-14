@@ -76,7 +76,7 @@ def get_phantom(phantom_dir: Path) -> bool:
     """
     _phantom_dir = _resolved_path(phantom_dir)
     logger.info('Getting Phantom repository')
-    logger.info(f'phantom_dir: {_nice_path(_phantom_dir)}')
+    logger.info(f'phantom_dir: {_phantom_dir}')
 
     if not _phantom_dir.exists():
         logger.info('Cloning fresh copy of Phantom')
@@ -209,7 +209,7 @@ def patch_phantom(*, phantom_dir: Path, phantom_patch: Path) -> bool:
     _phantom_patch = _resolved_path(phantom_patch)
 
     logger.info('Patching Phantom')
-    logger.info(f'Patch file: {_nice_path(_phantom_patch)}')
+    logger.info(f'Patch file: {_phantom_patch}')
 
     result = subprocess.run(['git', 'apply', _phantom_patch], cwd=_phantom_dir)
     if result.returncode != 0:
@@ -378,30 +378,6 @@ def setup_calculation(
     shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
 
     return True
-
-
-def _nice_path(path: Path) -> str:
-    """Convert absolute path to a string relative to '~', i.e. $HOME.
-
-    E.g. '/Users/user/dir/file.txt' is converted to '~/dir/file.txt'.
-
-    Parameters
-    ----------
-    path
-        The path to convert.
-
-    Returns
-    -------
-    str
-        The converted path.
-    """
-    try:
-        return '~/' + str(path.relative_to(pathlib.Path.home()))
-    except ValueError:
-        if path.anchor == '/':
-            return str(path)
-        else:
-            return './' + str(path)
 
 
 def _resolved_path(inp: Union[str, Path]) -> Path:
