@@ -33,16 +33,19 @@ class HDF5LibraryNotFound(Exception):
 def _setup_logger(filename: Path = None) -> Logger:
 
     if filename is None:
-        filename = pathlib.Path('~/.phantom-build.log').expanduser()
+        filename = pathlib.Path('.phantom-build.log').expanduser()
 
     logger = logging.getLogger('phantom-build')
 
     console_handler = logging.StreamHandler()
-    file_handler = logging.FileHandler(filename, mode='a')
+    file_handler = logging.FileHandler(filename, mode='w')
 
-    console_format = logging.Formatter('%(name)s %(levelname)s: %(message)s')
+    console_format = logging.Formatter(
+        '%(name)s %(levelname)s: %(funcName)s - %(message)s'
+    )
     file_format = logging.Formatter(
-        '%(asctime)s %(name)s %(levelname)s: %(message)s', '%Y-%m-%d %H:%M:%S'
+        '%(asctime)s %(name)s %(levelname)s: %(funcName)s - %(message)s',
+        '%Y-%m-%d %H:%M:%S',
     )
     console_handler.setFormatter(console_format)
     file_handler.setFormatter(file_format)
@@ -55,7 +58,7 @@ def _setup_logger(filename: Path = None) -> Logger:
     return logger
 
 
-LOGGER = _setup_logger()
+logger = _setup_logger()
 
 
 def get_phantom(phantom_dir: Path) -> bool:
@@ -71,15 +74,12 @@ def get_phantom(phantom_dir: Path) -> bool:
     bool
         Success or fail as boolean.
     """
-    LOGGER.info('------------------------------------------------')
-    LOGGER.info('>>> Getting Phantom')
-    LOGGER.info('------------------------------------------------')
-
     _phantom_dir = _resolved_path(phantom_dir)
+    logger.info('Getting Phantom repository')
+    logger.info(f'phantom_dir: {_nice_path(_phantom_dir)}')
 
     if not _phantom_dir.exists():
-        LOGGER.info('Cloning fresh copy of Phantom')
-        LOGGER.info(f'phantom_dir: {_nice_path(_phantom_dir)}')
+        logger.info('Cloning fresh copy of Phantom')
         result = subprocess.run(
             [
                 'git',
@@ -90,10 +90,10 @@ def get_phantom(phantom_dir: Path) -> bool:
             cwd=_phantom_dir.parent,
         )
         if result.returncode != 0:
-            LOGGER.info('Phantom clone failed')
+            logger.error('Phantom clone failed')
             raise RepoError('Fail to clone repo')
         else:
-            LOGGER.info('Phantom successfully cloned')
+            logger.info('Phantom successfully cloned')
     else:
         if not (
             subprocess.run(
@@ -109,11 +109,11 @@ def get_phantom(phantom_dir: Path) -> bool:
                 'https://bitbucket.org/danielprice/phantom.git',
             ]
         ):
-            LOGGER.info('phantom_dir is not Phantom')
-            raise RepoError('phantom_dir is not Phantom')
+            msg = 'phantom_dir is not Phantom'
+            logger.error(msg)
+            raise RepoError(msg)
         else:
-            LOGGER.info('Phantom already cloned')
-            LOGGER.info(f'phantom_dir: {_nice_path(_phantom_dir)}')
+            logger.info('Phantom already cloned')
 
     return True
 
@@ -135,11 +135,8 @@ def checkout_phantom_version(
     bool
         Success or fail as boolean.
     """
-    LOGGER.info('------------------------------------------------')
-    LOGGER.info('>>> Checking out required Phantom version')
-    LOGGER.info('------------------------------------------------')
-
     _phantom_dir = _resolved_path(phantom_dir)
+    logger.info('Getting required Phantom version')
 
     # Check git commit hash
     phantom_git_commit_hash = subprocess.run(
@@ -155,19 +152,20 @@ def checkout_phantom_version(
         text=True,
     ).stdout.strip()
     if phantom_git_commit_hash != required_phantom_git_commit_hash:
-        LOGGER.info('Checking out required Phantom version')
-        LOGGER.info(f'Git commit hash: {short_hash}')
+        logger.info('Checking out required Phantom version')
+        logger.info(f'Git commit hash: {short_hash}')
         result = subprocess.run(
             ['git', 'checkout', required_phantom_git_commit_hash], cwd=_phantom_dir
         )
         if result.returncode != 0:
-            LOGGER.info('Failed to checkout required version')
-            raise RepoError('Failed to checkout required version')
+            msg = 'Failed to checkout required version'
+            logger.error(msg)
+            raise RepoError(msg)
         else:
-            LOGGER.info('Successfully checked out required version')
+            logger.info('Successfully checked out required version')
     else:
-        LOGGER.info('Required version of Phantom already checked out')
-        LOGGER.info(f'Git commit hash: {short_hash}')
+        logger.info('Required version of Phantom already checked out')
+        logger.info(f'Git commit hash: {short_hash}')
 
     # Check if clean
     git_status = subprocess.run(
@@ -177,16 +175,17 @@ def checkout_phantom_version(
         text=True,
     ).stdout.strip()
     if not git_status == '':
-        LOGGER.info('Cleaning repository')
+        logger.info('Cleaning repository')
         results = list()
         results.append(subprocess.run(['git', 'reset', 'HEAD'], cwd=_phantom_dir))
         results.append(subprocess.run(['git', 'clean', '--force'], cwd=_phantom_dir))
         results.append(subprocess.run(['git', 'checkout', '--', '*'], cwd=_phantom_dir))
         if any(result.returncode != 0 for result in results):
-            LOGGER.info('Failed to clean repo')
-            raise RepoError('Failed to clean repo')
+            msg = 'Failed to clean repo'
+            logger.error(msg)
+            raise RepoError(msg)
         else:
-            LOGGER.info('Successfully cleaned repo')
+            logger.info('Successfully cleaned repo')
 
     return True
 
@@ -206,21 +205,19 @@ def patch_phantom(*, phantom_dir: Path, phantom_patch: Path) -> bool:
     bool
         Success or fail as boolean.
     """
-    LOGGER.info('------------------------------------------------')
-    LOGGER.info('>>> Applying patch to Phantom')
-    LOGGER.info('------------------------------------------------')
-
     _phantom_dir = _resolved_path(phantom_dir)
     _phantom_patch = _resolved_path(phantom_patch)
 
-    LOGGER.info(f'Patch file: {_nice_path(_phantom_patch)}')
+    logger.info('Patching Phantom')
+    logger.info(f'Patch file: {_nice_path(_phantom_patch)}')
 
     result = subprocess.run(['git', 'apply', _phantom_patch], cwd=_phantom_dir)
     if result.returncode != 0:
-        LOGGER.error('Failed to patch Phantom')
-        raise PatchError('Fail to patch Phantom')
+        msg = 'Failed to patch Phantom'
+        logger.error(msg)
+        raise PatchError(msg)
     else:
-        LOGGER.info('Successfully patched Phantom')
+        logger.info('Successfully patched Phantom')
 
     return True
 
@@ -256,11 +253,8 @@ def build_phantom(
     bool
         Success or fail as boolean.
     """
-    LOGGER.info('------------------------------------------------')
-    LOGGER.info('>>> Building Phantom')
-    LOGGER.info('------------------------------------------------')
-
     _phantom_dir = _resolved_path(phantom_dir)
+    logger.info('Building Phantom')
 
     make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system]
 
@@ -278,12 +272,13 @@ def build_phantom(
         result = subprocess.run(make_command, cwd=_phantom_dir, stdout=fp, stderr=fp)
 
     if result.returncode != 0:
-        LOGGER.info('Phantom failed to compile')
-        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
-        raise CompileError('Phantom failed to compile')
+        msg = 'Phantom failed to compile'
+        logger.error(msg)
+        logger.info(f'See "{build_log.name}" in Phantom build dir for output')
+        raise CompileError(msg)
     else:
-        LOGGER.info('Successfully compiled Phantom')
-        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
+        logger.info('Successfully compiled Phantom')
+        logger.info(f'See "{build_log.name}" in Phantom build dir for output')
 
     build_log = _phantom_dir / 'build' / 'build_output.log'
     with open(build_log, 'a') as fp:
@@ -292,12 +287,13 @@ def build_phantom(
         )
 
     if result.returncode != 0:
-        LOGGER.info('Phantomsetup failed to compile')
-        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
-        raise CompileError('Phantomsetup failed to compile')
+        msg = 'Phantomsetup failed to compile'
+        logger.error(msg)
+        logger.info(f'See "{build_log.name}" in Phantom build dir for output')
+        raise CompileError(msg)
     else:
-        LOGGER.info('Successfully compiled Phantomsetup')
-        LOGGER.info(f'See "{build_log.name}" in Phantom build dir')
+        logger.info('Successfully compiled Phantomsetup')
+        logger.info(f'See "{build_log.name}" in Phantom build dir for output')
 
     return True
 
@@ -329,6 +325,7 @@ def setup_calculation(
     _run_dir = _resolved_path(run_dir)
     _input_dir = _resolved_path(input_dir)
     _phantom_dir = _resolved_path(phantom_dir)
+    logger.info('Setting up Phantom calculation')
 
     if not _run_dir.exists():
         _run_dir.mkdir(parents=True)
@@ -353,10 +350,12 @@ def setup_calculation(
 
     process.communicate()[0]
     if process.returncode != 0:
-        LOGGER.info('Phantom failed to set up calculation')
-        raise SetupError('Phantom failed to set up calculation')
+        msg = 'Phantom failed to set up calculation'
+        logger.error(msg)
+        raise SetupError(msg)
     else:
-        LOGGER.info('Successfully set up Phantom calculation')
+        logger.info('Successfully set up Phantom calculation')
+        logger.info(f'run_dir: {run_dir}')
 
     shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
 
@@ -379,7 +378,7 @@ def _nice_path(path: Path) -> str:
         The converted path.
     """
     try:
-        return '~' + str(path.relative_to(pathlib.Path.home()))
+        return '~/' + str(path.relative_to(pathlib.Path.home()))
     except ValueError:
         if path.anchor == '/':
             return str(path)
