@@ -27,12 +27,13 @@ Import phantom-build
 >>> import phantombuild
 ```
 
-phantom-build has four main functions:
+phantom-build has five main functions:
 
-- `get_phantom` is used to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if it is already cloned.
-- `checkout_phantom_version` is used to check out a particular Phantom version based on a git commit hash.
-- `patch_phantom` is used to apply patches.
-- `build_phantom` is for compiling Phantom with particular Makefile options.
+- Use `get_phantom` to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if already cloned.
+- Use `checkout_phantom_version` to check out a particular Phantom version based on a git commit hash.
+- Use `patch_phantom` to apply patches.
+- Use `build_phantom` to compile Phantom with particular Makefile options.
+- Use `setup_calculation` to set up a calculation with phantomsetup.
 
 Examples
 --------
@@ -45,7 +46,7 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Clone Phantom
-    phantom_dir = pathlib.Path('~/repos/phantom').expanduser()
+    phantom_dir = '~/repos/phantom'
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     ```
 
@@ -64,10 +65,9 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Apply patch
-    phantom_patch = pathlib.Path('my-phantom.patch')
+    phantom_patch = 'my-phantom.patch'
     phantombuild.patch_phantom(
-        phantom_dir=phantom_dir,
-        phantom_patch=phantom_patch,
+        phantom_dir=phantom_dir, phantom_patch=phantom_patch,
     )
     ```
 
@@ -75,10 +75,10 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Makefile options
-    setup = 'dustybox'
+    setup = 'dustydisc'
     system = 'gfortran'
     extra_makefile_options = {'MAXP': '10000000'}
-    hdf5_location = pathlib.Path('/usr/local/opt/hdf5')
+    hdf5_location = '/usr/local/opt/hdf5'
 
     # Compile Phantom
     phantombuild.build_phantom(
@@ -90,4 +90,21 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     )
     ```
 
-You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations, see [phantom-setup](https://github.com/dmentipl/phantom-setup).
+5. Set up your calculation with `phantomsetup`.
+
+    ```python
+    # Options for particular calculation
+    prefix = 'mydisc'
+    run_dir = '~/runs/mydisc_001'
+    input_dir = '~/repos/my-paper/initial-conditions/mydisc_001'
+
+    # Set up calculation
+    phantombuild.setup_calculation(
+        prefix=prefix, run_dir=run_dir, input_dir=input_dir, phantom_dir=phantom_dir
+    )
+    ```
+
+The variable `input_dir` is a directory that contains the Phantom `.in` and
+`.setup` files with `prefix` the name of the Phantom calculation.
+
+You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations in pure Python (no Fortran required), see [phantom-setup](https://github.com/dmentipl/phantom-setup).
