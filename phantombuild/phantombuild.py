@@ -269,9 +269,19 @@ def build_phantom(
 
     build_log = _phantom_dir / 'build' / 'build_output.log'
     with open(build_log, 'w') as fp:
-        result = subprocess.run(make_command, cwd=_phantom_dir, stdout=fp, stderr=fp)
+        process = subprocess.Popen(
+            make_command,
+            cwd=_phantom_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+        for line in process.stdout:
+            sys.stdout.write(line)
+            fp.write(line)
+        process.communicate()[0]
 
-    if result.returncode != 0:
+    if process.returncode != 0:
         msg = 'Phantom failed to compile'
         logger.error(msg)
         logger.info(f'See "{build_log.name}" in Phantom build dir for output')
@@ -282,11 +292,19 @@ def build_phantom(
 
     build_log = _phantom_dir / 'build' / 'build_output.log'
     with open(build_log, 'a') as fp:
-        result = subprocess.run(
-            make_command + ['setup'], cwd=_phantom_dir, stdout=fp, stderr=fp
+        process = subprocess.Popen(
+            make_command + ['setup'],
+            cwd=_phantom_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
         )
+        for line in process.stdout:
+            sys.stdout.write(line)
+            fp.write(line)
+        process.communicate()[0]
 
-    if result.returncode != 0:
+    if process.returncode != 0:
         msg = 'Phantomsetup failed to compile'
         logger.error(msg)
         logger.info(f'See "{build_log.name}" in Phantom build dir for output')
