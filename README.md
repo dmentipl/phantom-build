@@ -18,7 +18,10 @@ Install phantom-build with pip
 pip install phantombuild
 ```
 
-There are no requirements other than Python 3.7 or greater.
+Requirements
+------------
+
+Python 3.7+.
 
 Usage
 -----
@@ -36,6 +39,7 @@ phantom-build has five main functions:
 - Use `patch_phantom` to apply patches.
 - Use `build_phantom` to compile Phantom with particular Makefile options.
 - Use `setup_calculation` to set up a calculation with phantomsetup.
+- Use `schedule_job` to schedule a calculation with a job scheduler, e.g. Slurm.
 
 Examples
 --------
@@ -104,6 +108,13 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     phantombuild.setup_calculation(
         prefix=prefix, run_dir=run_dir, input_dir=input_dir, phantom_dir=phantom_dir
     )
+    ```
+
+6. Schedule your job with Slurm.
+
+    ```python
+    job_file = '~/repos/my-paper/slurm_script'
+    phantombuild.schedule_job(run_dir=run_dir, job_file=job_file)
     ```
 
 The variable `input_dir` is a directory that contains the Phantom `.in` and

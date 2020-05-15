@@ -30,6 +30,10 @@ class HDF5LibraryNotFound(Exception):
     """Cannot find HDF5 library."""
 
 
+class ScheduleError(Exception):
+    """Exception for dealing with scheduling a Phantom calculation."""
+
+
 def _setup_logger(filename: Path = None) -> Logger:
 
     if filename is None:
@@ -385,6 +389,36 @@ def setup_calculation(
         logger.info(f'run_dir: {run_dir}')
 
     shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
+
+    return True
+
+
+def schedule_job(run_dir: Union[Path, str], job_file: Union[Path, str]):
+    """Schedule the calculation with Slurm.
+
+    Parameters
+    ----------
+    run_dir
+        The path to the directory in which Phantom will output data.
+    job_file
+        The path to the Slurm batch script file.
+
+    Returns
+    -------
+    bool
+        Success or fail as boolean.
+    """
+    shutil.copy(job_file, run_dir)
+    try:
+        subprocess.run(['sbatch', job_file], cwd=run_dir, check=True)
+    except FileNotFoundError:
+        msg = 'sbatch not available'
+        logger.error(msg)
+        raise ScheduleError(msg)
+    except subprocess.CalledProcessError:
+        msg = 'Scheduling failed'
+        logger.error(msg)
+        raise ScheduleError(msg)
 
     return True
 

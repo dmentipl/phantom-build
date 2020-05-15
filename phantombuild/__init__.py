@@ -1,12 +1,12 @@
 """
 Phantom build
--------------
+=============
 
 phantombuild is designed to make building Phantom easier.
 
 See [Phantom](https://phantomsph.bitbucket.io/) for details on Phantom.
 
-Daniel Mentiplay, 2019.
+Daniel Mentiplay, 2019-2020.
 """
 
 from .phantombuild import (
@@ -15,6 +15,7 @@ from .phantombuild import (
     get_phantom,
     patch_phantom,
     setup_calculation,
+    schedule_job,
 )
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     'patch_phantom',
     'build_phantom',
     'setup_calculation',
+    'schedule_job',
 ]
 __version__ = '0.1.4'
