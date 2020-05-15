@@ -1,3 +1,5 @@
+"""Phantom-build setup.py."""
+
 import io
 import pathlib
 import re
@@ -22,4 +24,11 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     python_requires='>=3.7',
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Operating System :: OS Independent",
+    ],
 )

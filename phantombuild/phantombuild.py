@@ -278,6 +278,7 @@ def build_phantom(
             stderr=subprocess.STDOUT,
             universal_newlines=True,
         )
+        assert process.stdout is not None
         for line in process.stdout:
             sys.stdout.write(line)
             fp.write(line)
@@ -301,6 +302,7 @@ def build_phantom(
             stderr=subprocess.STDOUT,
             universal_newlines=True,
         )
+        assert process.stdout is not None
         for line in process.stdout:
             sys.stdout.write(line)
             fp.write(line)
@@ -368,6 +370,7 @@ def setup_calculation(
             stderr=subprocess.STDOUT,
             universal_newlines=True,
         )
+        assert process.stdout is not None
         for line in process.stdout:
             sys.stdout.write(line)
             f.write(line)
