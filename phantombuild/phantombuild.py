@@ -374,8 +374,8 @@ def setup_calculation(
         for line in process.stdout:
             sys.stdout.write(line)
             f.write(line)
+        process.communicate()[0]
 
-    process.communicate()[0]
     if process.returncode != 0:
         msg = 'Phantom failed to set up calculation'
         logger.error(msg)
