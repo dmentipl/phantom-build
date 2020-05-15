@@ -1,0 +1,39 @@
+# input file for disc setup routine
+
+# resolution
+                  np =      100000    ! number of gas particles
+
+# units
+           dist_unit =          au    ! distance unit (e.g. au,pc,kpc,0.1pc)
+           mass_unit =      solarm    ! mass unit (e.g. solarm,jupiterm,earthm)
+
+# central object(s)/potential
+            icentral =           1    ! use sink particles or external potential (0=potential,1=sinks)
+              nsinks =           1    ! number of sinks
+
+# options for central star
+                  m1 =       1.000    ! star mass
+               accr1 =       1.000    ! star accretion radius
+
+# options for gas accretion disc
+             isetgas =           0    ! how to set gas density profile (0=total disc mass,1=mass within annulus,2=surface density normalisation,3=surface density at reference radius,4=minimum Toomre Q)
+           itapergas =           F    ! exponentially taper the outer disc profile
+          ismoothgas =           T    ! smooth inner disc
+               iwarp =           F    ! warp disc
+                R_in =       1.000    ! inner radius
+               R_ref =       1.000    ! reference radius
+               R_out =        150.    ! outer radius
+              disc_m =       0.050    ! disc mass
+              pindex =       1.000    ! p index
+              qindex =       0.250    ! q index
+             posangl =       0.000    ! position angle (deg)
+                incl =       0.000    ! inclination (deg)
+                 H_R =       0.050    ! H/R at R=R_ref
+             alphaSS =       0.010    ! desired alphaSS
+
+# set planets
+          setplanets =           0    ! add planets? (0=no,1=yes)
+
+# timestepping
+             norbits =         100    ! maximum number of orbits at outer disc
+              deltat =       0.100    ! output interval as fraction of orbital period

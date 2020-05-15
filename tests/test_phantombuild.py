@@ -98,3 +98,18 @@ def test_build_phantom():
         }
         with pytest.raises(CompileError):
             pb.build_phantom(**kwargs)
+
+
+def test_setup_calculation():
+    """Test setting up Phantom calculation."""
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        phantom_dir = pathlib.Path(tmpdirname) / 'phantom_dir'
+        run_dir = pathlib.Path(tmpdirname) / 'run_dir'
+        input_dir = pathlib.Path(__file__).parent / 'stub'
+        pb.get_phantom(phantom_dir)
+        pb.build_phantom(
+            phantom_dir=phantom_dir, setup='disc', system='gfortran',
+        )
+        pb.setup_calculation(
+            prefix='disc', run_dir=run_dir, input_dir=input_dir, phantom_dir=phantom_dir
+        )
