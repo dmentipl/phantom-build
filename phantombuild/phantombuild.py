@@ -123,7 +123,7 @@ def get_phantom(phantom_dir: Union[Path, str]) -> bool:
 
 
 def checkout_phantom_version(
-    *, phantom_dir: Union[Path, str], required_phantom_git_commit_hash: str
+    phantom_dir: Union[Path, str], required_phantom_git_commit_hash: str
 ) -> bool:
     """Check out a particular Phantom version.
 
@@ -195,7 +195,7 @@ def checkout_phantom_version(
 
 
 def patch_phantom(
-    *, phantom_dir: Union[Path, str], phantom_patch: Union[Path, str]
+    phantom_dir: Union[Path, str], phantom_patch: Union[Path, str]
 ) -> bool:
     """Apply patch to Phantom.
 
@@ -229,7 +229,6 @@ def patch_phantom(
 
 
 def build_phantom(
-    *,
     phantom_dir: Union[Path, str],
     setup: str,
     system: str,
@@ -325,7 +324,6 @@ def build_phantom(
 
 
 def setup_calculation(
-    *,
     prefix: str,
     run_dir: Union[Path, str],
     input_dir: Union[Path, str],
