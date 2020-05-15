@@ -326,7 +326,8 @@ def build_phantom(
 def setup_calculation(
     prefix: str,
     run_dir: Union[Path, str],
-    input_dir: Union[Path, str],
+    setup_file: Union[Path, str],
+    in_file: Union[Path, str],
     phantom_dir: Union[Path, str],
 ) -> bool:
     """Set up Phantom calculation.
@@ -338,10 +339,10 @@ def setup_calculation(
         Phantom snapshots will be names disc_00000.h5, etc.
     run_dir
         The path to the directory in which Phantom will output data.
-    input_dir
-        The path to the directory containing Phantom prefix.setup and
-        prefix.in files. These files must have names corresponding to
-        the prefix.
+    setup_file
+        The path to the Phantom prefix.setup file.
+    in_file
+        The path to the Phantom prefix.in file.
     phantom_dir
         The path to the Phantom repository.
 
@@ -349,9 +350,15 @@ def setup_calculation(
     -------
     bool
         Success or fail as boolean.
+
+    Notes
+    -----
+    The parameters prefix, setup_file, and in_file must be consistently
+    named.
     """
     _run_dir = _resolved_path(run_dir)
-    _input_dir = _resolved_path(input_dir)
+    _setup_file = _resolved_path(setup_file)
+    _in_file = _resolved_path(in_file)
     _phantom_dir = _resolved_path(phantom_dir)
     logger.info('Setting up Phantom calculation')
 
@@ -361,8 +368,8 @@ def setup_calculation(
     for file in ['phantom', 'phantomsetup', 'phantom_version']:
         shutil.copy(_phantom_dir / 'bin' / file, _run_dir)
 
-    shutil.copy(_input_dir / f'{prefix}.setup', _run_dir)
-    shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
+    shutil.copy(_setup_file, _run_dir)
+    shutil.copy(_in_file, _run_dir)
 
     with open(_run_dir / f'{prefix}00.log', mode='w') as f:
         process = subprocess.Popen(
@@ -386,7 +393,7 @@ def setup_calculation(
         logger.info('Successfully set up Phantom calculation')
         logger.info(f'run_dir: {run_dir}')
 
-    shutil.copy(_input_dir / f'{prefix}.in', _run_dir)
+    shutil.copy(_in_file, _run_dir)
 
     return True
 

@@ -107,10 +107,16 @@ def test_setup_calculation():
         phantom_dir = pathlib.Path(tmpdirname) / 'phantom_dir'
         run_dir = pathlib.Path(tmpdirname) / 'run_dir'
         input_dir = pathlib.Path(__file__).parent / 'stub'
+        in_file = input_dir / 'disc.in'
+        setup_file = input_dir / 'disc.setup'
         pb.get_phantom(phantom_dir)
         pb.build_phantom(
             phantom_dir=phantom_dir, setup='disc', system='gfortran',
         )
         pb.setup_calculation(
-            prefix='disc', run_dir=run_dir, input_dir=input_dir, phantom_dir=phantom_dir
+            prefix='disc',
+            run_dir=run_dir,
+            setup_file=setup_file,
+            in_file=in_file,
+            phantom_dir=phantom_dir,
         )
