@@ -21,7 +21,7 @@ pip install phantombuild
 Requirements
 ------------
 
-Python 3.7+.
+Python 3.7+. [Click](https://click.palletsprojects.com/), [tomlkit](https://github.com/sdispater/tomlkit).
 
 Usage
 -----
@@ -32,7 +32,7 @@ Import phantom-build
 >>> import phantombuild
 ```
 
-phantom-build has five main functions:
+phantom-build has several functions:
 
 - Use `get_phantom` to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if already cloned.
 - Use `checkout_phantom_version` to check out a particular Phantom version based on a git commit hash.

@@ -17,6 +17,8 @@ from .phantombuild import (
     patch_phantom,
     setup_calculation,
     schedule_job,
+    read_config,
+    write_config,
 )
 
 __all__ = [
@@ -27,5 +29,7 @@ __all__ = [
     'patch_phantom',
     'schedule_job',
     'setup_calculation',
+    'read_config',
+    'write_config',
 ]
 __version__ = '0.1.4'

@@ -23,7 +23,8 @@ setup(
     description='Phantom build',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    install_requires=['click'],
+    install_requires=['click', 'tomlkit'],
+    include_package_data=True,
     python_requires='>=3.7',
     classifiers=[
         "Development Status :: 5 - Production/Stable",

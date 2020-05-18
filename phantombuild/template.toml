@@ -1,0 +1,25 @@
+[phantom]
+path = "~/repos/phantom"
+setup = "disc"
+system = "ifort"
+version = "d9a5507f"
+patches = [
+    "phantom-d9a5507f-1.patch",
+    "phantom-d9a5507f-2.patch",
+]
+extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=no"]
+hdf5_path = "/usr/local/opt/hdf5"
+
+[[runs]]
+prefix = "disc"
+path = "~/runs/discs/disc_a"
+setup_file = "~/repos/discs/disc_a.setup"
+in_file = "~/repos/discs/disc_a.in"
+job_script = "~/repos/discs/slurm.sh"
+
+[[runs]]
+prefix = "disc"
+path = "~/runs/discs/disc_b"
+setup_file = "~/repos/discs/disc_b.setup"
+in_file = "~/repos/discs/disc_b.in"
+job_script = "~/repos/discs/slurm.sh"
