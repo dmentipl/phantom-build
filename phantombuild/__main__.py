@@ -3,7 +3,7 @@
 from typing import Tuple
 
 import click
-from .. import phantombuild
+from . import phantombuild
 
 
 @click.command()
@@ -151,3 +151,7 @@ def main(
 def _convert_make_options_to_dict(string):
     string = string.replace(' ', '')
     return {_s.split('=')[0]: _s.split('=')[1] for _s in string.split(',')}
+
+
+if __name__ == '__main__':
+    main(prog_name='python -m phantombuild')
