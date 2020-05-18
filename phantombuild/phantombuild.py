@@ -72,12 +72,12 @@ def _setup_logger(filename: Path = None) -> Logger:
 logger = _setup_logger()
 
 
-def get_phantom(phantom_path: Union[Path, str]) -> bool:
+def get_phantom(path: Union[Path, str]) -> bool:
     """Get Phantom repository.
 
     Parameters
     ----------
-    phantom_path
+    path
         The path to the Phantom repository.
 
     Returns
@@ -85,20 +85,20 @@ def get_phantom(phantom_path: Union[Path, str]) -> bool:
     bool
         Success or fail as boolean.
     """
-    _phantom_path = _resolved_path(phantom_path)
+    _path = _resolved_path(path)
     logger.info('Getting Phantom repository')
-    logger.info(f'phantom_path: {_phantom_path}')
+    logger.info(f'path: {_path}')
 
-    if not _phantom_path.exists():
+    if not _path.exists():
         logger.info('Cloning fresh copy of Phantom')
         result = subprocess.run(
             [
                 'git',
                 'clone',
                 'https://bitbucket.org/danielprice/phantom.git',
-                _phantom_path.stem,
+                _path.stem,
             ],
-            cwd=_phantom_path.parent,
+            cwd=_path.parent,
         )
         if result.returncode != 0:
             logger.error('Phantom clone failed')
@@ -109,7 +109,7 @@ def get_phantom(phantom_path: Union[Path, str]) -> bool:
         if not (
             subprocess.run(
                 ['git', 'config', '--local', '--get', 'remote.origin.url'],
-                cwd=_phantom_path,
+                cwd=_path,
                 stdout=subprocess.PIPE,
                 text=True,
             ).stdout.strip()
@@ -120,7 +120,7 @@ def get_phantom(phantom_path: Union[Path, str]) -> bool:
                 'https://bitbucket.org/danielprice/phantom.git',
             ]
         ):
-            msg = 'phantom_path is not Phantom'
+            msg = f'{path} is not Phantom'
             logger.error(msg)
             raise RepoError(msg)
         else:
@@ -129,45 +129,38 @@ def get_phantom(phantom_path: Union[Path, str]) -> bool:
     return True
 
 
-def checkout_phantom_version(
-    phantom_path: Union[Path, str], required_phantom_git_commit_hash: str
-) -> bool:
+def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
     """Check out a particular Phantom version.
 
     Parameters
     ----------
-    phantom_path
+    path
         The path to the Phantom repository.
-    required_phantom_git_commit_hash
-        The required Phantom git commit hash.
+    version
+        The required Phantom version specified by git commit hash.
 
     Returns
     -------
     bool
         Success or fail as boolean.
     """
-    _phantom_path = _resolved_path(phantom_path)
+    _path = _resolved_path(path)
     logger.info('Getting required Phantom version')
 
     # Check git commit hash
     phantom_git_commit_hash = subprocess.run(
-        ['git', 'rev-parse', 'HEAD'],
-        cwd=_phantom_path,
-        stdout=subprocess.PIPE,
-        text=True,
+        ['git', 'rev-parse', 'HEAD'], cwd=_path, stdout=subprocess.PIPE, text=True,
     ).stdout.strip()
     short_hash = subprocess.run(
-        ['git', 'rev-parse', '--short', required_phantom_git_commit_hash],
-        cwd=_phantom_path,
+        ['git', 'rev-parse', '--short', version],
+        cwd=_path,
         stdout=subprocess.PIPE,
         text=True,
     ).stdout.strip()
-    if phantom_git_commit_hash != required_phantom_git_commit_hash:
+    if phantom_git_commit_hash != version:
         logger.info('Checking out required Phantom version')
         logger.info(f'Git commit hash: {short_hash}')
-        result = subprocess.run(
-            ['git', 'checkout', required_phantom_git_commit_hash], cwd=_phantom_path
-        )
+        result = subprocess.run(['git', 'checkout', version], cwd=_path)
         if result.returncode != 0:
             msg = 'Failed to checkout required version'
             logger.error(msg)
@@ -180,19 +173,14 @@ def checkout_phantom_version(
 
     # Check if clean
     git_status = subprocess.run(
-        ['git', 'status', '--porcelain'],
-        cwd=_phantom_path,
-        stdout=subprocess.PIPE,
-        text=True,
+        ['git', 'status', '--porcelain'], cwd=_path, stdout=subprocess.PIPE, text=True,
     ).stdout.strip()
     if not git_status == '':
         logger.info('Cleaning repository')
         results = list()
-        results.append(subprocess.run(['git', 'reset', 'HEAD'], cwd=_phantom_path))
-        results.append(subprocess.run(['git', 'clean', '--force'], cwd=_phantom_path))
-        results.append(
-            subprocess.run(['git', 'checkout', '--', '*'], cwd=_phantom_path)
-        )
+        results.append(subprocess.run(['git', 'reset', 'HEAD'], cwd=_path))
+        results.append(subprocess.run(['git', 'clean', '--force'], cwd=_path))
+        results.append(subprocess.run(['git', 'checkout', '--', '*'], cwd=_path))
         if any(result.returncode != 0 for result in results):
             msg = 'Failed to clean repo'
             logger.error(msg)
@@ -203,16 +191,14 @@ def checkout_phantom_version(
     return True
 
 
-def patch_phantom(
-    phantom_path: Union[Path, str], phantom_patch: Union[Path, str]
-) -> bool:
+def patch_phantom(path: Union[Path, str], patch: Union[Path, str]) -> bool:
     """Apply patch to Phantom.
 
     Parameters
     ----------
-    phantom_path
+    path
         The path to the Phantom repository.
-    phantom_patch
+    patch
         The path to the patch file, if required.
 
     Returns
@@ -220,13 +206,13 @@ def patch_phantom(
     bool
         Success or fail as boolean.
     """
-    _phantom_path = _resolved_path(phantom_path)
-    _phantom_patch = _resolved_path(phantom_patch)
+    _path = _resolved_path(path)
+    _patch = _resolved_path(patch)
 
     logger.info('Patching Phantom')
-    logger.info(f'Patch file: {_phantom_patch}')
+    logger.info(f'Patch file: {_patch}')
 
-    result = subprocess.run(['git', 'apply', _phantom_patch], cwd=_phantom_path)
+    result = subprocess.run(['git', 'apply', _patch], cwd=_path)
     if result.returncode != 0:
         msg = 'Failed to patch Phantom'
         logger.error(msg)
@@ -238,27 +224,27 @@ def patch_phantom(
 
 
 def build_phantom(
-    phantom_path: Union[Path, str],
+    path: Union[Path, str],
     setup: str,
     system: str,
-    hdf5_location: Union[Path, str] = None,
-    extra_makefile_options: Dict[str, str] = None,
+    hdf5_path: Union[Path, str] = None,
+    extra_options: Dict[str, str] = None,
 ) -> bool:
     """Build Phantom.
 
     Parameters
     ----------
-    phantom_path
+    path
         The path to the Phantom repository.
     setup
         The Phantom setup, e.g. 'disc', 'dustybox', etc.
     system
         The compiler as specified in the Phantom makefile, e.g.
         'gfortran' or 'ifort'.
-    hdf5_location
+    hdf5_path
         The path to the HDF5 installation, or if None, do not compile
         with HDF5.
-    extra_makefile_options
+    extra_options
         Extra options to pass to make. This values in this dictionary
         should be strings only.
 
@@ -267,25 +253,25 @@ def build_phantom(
     bool
         Success or fail as boolean.
     """
-    _phantom_path = _resolved_path(phantom_path)
+    _path = _resolved_path(path)
     logger.info('Building Phantom')
 
     make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system]
 
-    if hdf5_location is not None:
-        _hdf5_location = _resolved_path(hdf5_location)
-        if not _hdf5_location.exists():
+    if hdf5_path is not None:
+        _hdf5_path = _resolved_path(hdf5_path)
+        if not _hdf5_path.exists():
             raise HDF5LibraryNotFound('Cannot determine HDF5 library location')
-        make_command += ['HDF5=yes', 'HDF5ROOT=' + str(_hdf5_location.resolve())]
+        make_command += ['HDF5=yes', 'HDF5ROOT=' + str(_hdf5_path.resolve())]
 
-    if extra_makefile_options is not None:
-        make_command += [key + '=' + val for key, val in extra_makefile_options.items()]
+    if extra_options is not None:
+        make_command += [key + '=' + val for key, val in extra_options.items()]
 
-    build_log = _phantom_path / 'build' / 'build_output.log'
+    build_log = _path / 'build' / 'build_output.log'
     with open(build_log, 'w') as fp:
         process = subprocess.Popen(
             make_command,
-            cwd=_phantom_path,
+            cwd=_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
@@ -305,11 +291,11 @@ def build_phantom(
         logger.info('Successfully compiled Phantom')
         logger.info(f'See "{build_log.name}" in Phantom build directory for output')
 
-    build_log = _phantom_path / 'build' / 'build_output.log'
+    build_log = _path / 'build' / 'build_output.log'
     with open(build_log, 'a') as fp:
         process = subprocess.Popen(
             make_command + ['setup'],
-            cwd=_phantom_path,
+            cwd=_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
@@ -334,9 +320,9 @@ def build_phantom(
 
 def setup_calculation(
     prefix: str,
-    run_path: Union[Path, str],
     setup_file: Union[Path, str],
     in_file: Union[Path, str],
+    run_path: Union[Path, str],
     phantom_path: Union[Path, str],
 ) -> bool:
     """Set up Phantom calculation.
@@ -346,12 +332,12 @@ def setup_calculation(
     prefix
         Calculation prefix, i.e. name. E.g. if prefix is 'disc' then
         Phantom snapshots will be names disc_00000.h5, etc.
-    run_path
-        The path to the directory in which Phantom will output data.
     setup_file
         The path to the Phantom prefix.setup file.
     in_file
         The path to the Phantom prefix.in file.
+    run_path
+        The path to the directory in which Phantom will output data.
     phantom_path
         The path to the Phantom repository.
 
@@ -440,16 +426,16 @@ def schedule_job(run_path: Union[Path, str], job_file: Union[Path, str]):
 def build_and_setup(
     *,
     prefix: str,
-    run_path: Union[Path, str],
     setup_file: Union[Path, str],
     in_file: Union[Path, str],
+    run_path: Union[Path, str],
     job_script: Union[Path, str] = None,
     phantom_path: Union[Path, str],
     phantom_version: str = None,
     phantom_patches: List[Union[Path, str]] = None,
     phantom_setup: str,
     phantom_system: str,
-    phantom_extra_make_flags: Dict[str, str],
+    phantom_extra_options: Dict[str, str],
     hdf5_path: Union[Path, str] = None,
 ):
     """Build Phantom and setup run.
@@ -482,7 +468,7 @@ def build_and_setup(
     phantom_system
         The compiler as specified in the Phantom makefile, e.g.
         'gfortran' or 'ifort'.
-    phantom_extra_make_flags
+    phantom_extra_options
         Extra options to pass to make. This values in this dictionary
         should be strings only.
     hdf5_path
@@ -495,34 +481,32 @@ def build_and_setup(
         Success or fail as boolean.
     """
     # Get Phantom
-    get_phantom(phantom_path=phantom_path)
+    get_phantom(path=phantom_path)
 
     # Checkout required version (if required)
     if phantom_version is not None:
-        checkout_phantom_version(
-            phantom_path=phantom_path, required_phantom_git_commit_hash=phantom_version
-        )
+        checkout_phantom_version(path=phantom_path, version=phantom_version)
 
     # Apply patches (if required)
     if phantom_patches is not None:
         for patch in phantom_patches:
-            patch_phantom(phantom_path=phantom_path, phantom_patch=patch)
+            patch_phantom(path=phantom_path, patch=patch)
 
     # Compile Phantom
     build_phantom(
-        phantom_path=phantom_path,
+        path=phantom_path,
         setup=phantom_setup,
         system=phantom_system,
-        hdf5_location=hdf5_path,
-        extra_makefile_options=phantom_extra_make_flags,
+        hdf5_path=hdf5_path,
+        extra_options=phantom_extra_options,
     )
 
     # Set up calculation
     setup_calculation(
         prefix=prefix,
-        run_path=run_path,
         setup_file=setup_file,
         in_file=in_file,
+        run_path=run_path,
         phantom_path=phantom_path,
     )
 
@@ -568,7 +552,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
 
     _kwargs = {f'phantom_{key}': data['phantom'].get(key) for key in phantom_keys}
     _kwargs['hdf5_path'] = data['phantom'].get('hdf5_path')
-    _kwargs['phantom_extra_make_flags'] = {
+    _kwargs['phantom_extra_options'] = {
         item.split('=')[0]: item.split('=')[1]
         for item in data['phantom'].get('extra_make_flags')
     }
