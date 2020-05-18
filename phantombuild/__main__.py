@@ -1,9 +1,10 @@
 """Phantom-build command line program."""
 
-from typing import Tuple
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
 
 import click
-from . import phantombuild
+from .phantombuild import build_and_setup
 
 
 @click.command()
@@ -106,49 +107,32 @@ def main(
             'and run-in-file options'
         )
     if phantom_dir is None:
-        phantom_dir = './phantom'
-
-    # Clone Phantom
-    phantombuild.get_phantom(phantom_dir=phantom_dir)
-
-    # Checkout required version
-    if phantom_version is not None:
-        phantombuild.checkout_phantom_version(
-            phantom_dir=phantom_dir, required_phantom_git_commit_hash=phantom_version
-        )
-
-    # Apply patches
+        phantom_dir = 'phantom'
     if phantom_patch is not None:
-        for patch in phantom_patch:
-            phantombuild.patch_phantom(phantom_dir=phantom_dir, phantom_patch=patch)
-
-    # Compile Phantom
-    phantombuild.build_phantom(
-        phantom_dir=phantom_dir,
-        setup=phantom_setup,
-        system=phantom_system,
-        hdf5_location=phantom_hdf5_dir,
-        extra_makefile_options=_convert_make_options_to_dict(phantom_extra_flags),
-    )
+        _phantom_patch: List[Union[Path, str]] = list(phantom_patch)
+    if phantom_extra_flags is not None:
+        _phantom_extra_flags = _convert_make_options_to_dict(phantom_extra_flags)
 
     # Loop over runs
-    for _run_dir, setup_file, in_file in zip(run_dir, run_setup_file, run_in_file):
+    for _run_dir, _setup_file, _in_file in zip(run_dir, run_setup_file, run_in_file):
 
-        # Set up calculation
-        phantombuild.setup_calculation(
+        build_and_setup(
             prefix=run_prefix,
             run_dir=_run_dir,
-            setup_file=setup_file,
-            in_file=in_file,
+            setup_file=_setup_file,
+            in_file=_in_file,
+            job_script=run_job_script,
             phantom_dir=phantom_dir,
+            phantom_version=phantom_version,
+            phantom_patches=_phantom_patch,
+            phantom_setup=phantom_setup,
+            phantom_system=phantom_system,
+            phantom_extra_flags=_phantom_extra_flags,
+            hdf5_dir=phantom_hdf5_dir,
         )
 
-        # Schedule calculation
-        if run_job_script:
-            phantombuild.schedule_job(run_dir=_run_dir, job_file=run_job_script)
 
-
-def _convert_make_options_to_dict(string):
+def _convert_make_options_to_dict(string: str) -> Dict[str, str]:
     string = string.replace(' ', '')
     return {_s.split('=')[0]: _s.split('=')[1] for _s in string.split(',')}
 
