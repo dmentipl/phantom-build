@@ -23,7 +23,12 @@ setup(
     description='Phantom build',
     long_description=long_description,
     long_description_content_type='text/markdown',
+    install_requires=['click'],
     python_requires='>=3.7',
+    entry_points="""
+        [console_scripts]
+        phantombuild=phantombuild.scripts.phantombuild:main
+    """,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
