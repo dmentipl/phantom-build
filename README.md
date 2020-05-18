@@ -32,7 +32,7 @@ Import phantom-build
 >>> import phantombuild
 ```
 
-phantom-build has several functions:
+phantom-build has some useful functions:
 
 - Use `get_phantom` to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if already cloned.
 - Use `checkout_phantom_version` to check out a particular Phantom version based on a git commit hash.
@@ -52,18 +52,16 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Clone Phantom
-    phantom_dir = '~/repos/phantom'
-    phantombuild.get_phantom(phantom_dir=phantom_dir)
+    phantom_path = '~/phantom'
+    phantombuild.get_phantom(path=phantom_path)
     ```
 
 2. Now, check out a particular version of Phantom based on the git commit hash.
 
     ```python
     # Checkout particular commit
-    required_phantom_git_commit_hash = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-    phantombuild.checkout_phantom_version(
-        phantom_dir=phantom_dir,
-        required_phantom_git_commit_hash=required_phantom_git_commit_hash,
+    version = '6666c55f'
+    phantombuild.checkout_phantom_version(path=phantom_path, version=version)
     )
     ```
 
@@ -71,28 +69,26 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Apply patch
-    phantom_patch = 'my-phantom.patch'
-    phantombuild.patch_phantom(
-        phantom_dir=phantom_dir, phantom_patch=phantom_patch,
-    )
+    patch = 'phantom-6666c55f.patch'
+    phantombuild.patch_phantom(path=phantom_path, patch=patch)
     ```
 
 4. Now, build Phantom with particular Makefile options.
 
     ```python
     # Makefile options
-    setup = 'dustydisc'
+    setup = 'disc'
     system = 'gfortran'
     extra_makefile_options = {'MAXP': '10000000'}
-    hdf5_location = '/usr/local/opt/hdf5'
+    hdf5_path = '/usr/local/opt/hdf5'
 
     # Compile Phantom
     phantombuild.build_phantom(
-        phantom_dir=phantom_dir,
+        path=phantom_path,
         setup=setup,
         system=system,
-        hdf5_location=hdf5_location,
-        extra_makefile_options=extra_makefile_options,
+        hdf5_path=hdf5_path,
+        extra_options=extra_options,
     )
     ```
 
@@ -100,24 +96,26 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
 
     ```python
     # Options for particular calculation
-    prefix = 'mydisc'
-    run_dir = '~/runs/mydisc_001'
-    input_dir = '~/repos/my-paper/initial-conditions/mydisc_001'
+    prefix = 'disc'
+    setup_file = '~/repos/paper/disc_a.setup'
+    in_file = '~/repos/paper/disc_a.in'
+    run_path = '~/runs/mydisc_a'
 
     # Set up calculation
     phantombuild.setup_calculation(
-        prefix=prefix, run_dir=run_dir, input_dir=input_dir, phantom_dir=phantom_dir
+        prefix=prefix,
+        setup_file=setup_file,
+        in_file=in_file,
+        run_path=run_path,
+        phantom_path=phantom_path,
     )
     ```
 
 6. Schedule your job with Slurm.
 
     ```python
-    job_file = '~/repos/my-paper/slurm_script'
-    phantombuild.schedule_job(run_dir=run_dir, job_file=job_file)
+    job_file = '~/repos/paper/slurm.sh'
+    phantombuild.schedule_job(run_path=run_path, job_file=job_file)
     ```
 
-The variable `input_dir` is a directory that contains the Phantom `.in` and
-`.setup` files with `prefix` the name of the Phantom calculation.
-
-You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations in pure Python (no Fortran required), see [phantom-setup](https://github.com/dmentipl/phantom-setup).
+You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations in pure Python (no Fortran required), see (the work in progress) [phantom-setup](https://github.com/dmentipl/phantom-setup).
