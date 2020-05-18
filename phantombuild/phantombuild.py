@@ -7,7 +7,7 @@ import subprocess
 import sys
 from logging import Logger
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 
 class RepoError(Exception):
@@ -424,6 +424,102 @@ def schedule_job(run_dir: Union[Path, str], job_file: Union[Path, str]):
         msg = 'Scheduling failed'
         logger.error(msg)
         raise ScheduleError(msg)
+
+    return True
+
+
+def build_and_setup(
+    *,
+    prefix: str,
+    run_dir: Union[Path, str],
+    setup_file: Union[Path, str],
+    in_file: Union[Path, str],
+    job_script: Union[Path, str] = None,
+    phantom_dir: Union[Path, str],
+    phantom_version: str = None,
+    phantom_patches: List[Union[Path, str]] = None,
+    phantom_setup: str,
+    phantom_system: str,
+    phantom_extra_flags: Dict[str, str],
+    hdf5_dir: Union[Path, str] = None,
+):
+    """Build Phantom and setup run.
+
+    Get a copy of Phantom, checkout a required version, apply patches,
+    and compile. Then run phantomsetup to set up the calculation, and
+    optionally submit the run as a job in Slurm.
+
+    Parameters
+    ----------
+    prefix
+        Calculation prefix, i.e. name. E.g. if prefix is 'disc' then
+        Phantom snapshots will be names disc_00000.h5, etc.
+    run_dir
+        The path to the directory in which Phantom will output data.
+    setup_file
+        The path to the Phantom prefix.setup file.
+    in_file
+        The path to the Phantom prefix.in file.
+    job_script
+        The path to the Slurm batch script file, if required.
+    phantom_dir
+        The path to the Phantom repository.
+    phantom_version
+        The required Phantom git commit hash, if required.
+    phantom_patches
+        A list of paths to patch files, if required.
+    phantom_setup
+        The Phantom setup, e.g. 'disc', 'dustybox', etc.
+    phantom_system
+        The compiler as specified in the Phantom makefile, e.g.
+        'gfortran' or 'ifort'.
+    phantom_extra_flags
+        Extra options to pass to make. This values in this dictionary
+        should be strings only.
+    hdf5_dir
+        The path to the HDF5 installation, or if None, do not compile
+        with HDF5.
+
+    Returns
+    -------
+    bool
+        Success or fail as boolean.
+    """
+    # Get Phantom
+    get_phantom(phantom_dir=phantom_dir)
+
+    # Checkout required version (if required)
+    if phantom_version is not None:
+        checkout_phantom_version(
+            phantom_dir=phantom_dir, required_phantom_git_commit_hash=phantom_version
+        )
+
+    # Apply patches (if required)
+    if phantom_patches is not None:
+        for patch in phantom_patches:
+            patch_phantom(phantom_dir=phantom_dir, phantom_patch=patch)
+
+    # Compile Phantom
+    build_phantom(
+        phantom_dir=phantom_dir,
+        setup=phantom_setup,
+        system=phantom_system,
+        hdf5_location=hdf5_dir,
+        extra_makefile_options=phantom_extra_flags,
+    )
+
+    # Set up calculation
+    setup_calculation(
+        prefix=prefix,
+        run_dir=run_dir,
+        setup_file=setup_file,
+        in_file=in_file,
+        phantom_dir=phantom_dir,
+    )
+
+    # Schedule calculation
+    if job_script is not None:
+        schedule_job(run_dir=run_dir, job_file=job_script)
 
     return True
 

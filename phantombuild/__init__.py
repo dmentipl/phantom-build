@@ -10,6 +10,7 @@ Daniel Mentiplay, 2019-2020.
 """
 
 from .phantombuild import (
+    build_and_setup,
     build_phantom,
     checkout_phantom_version,
     get_phantom,
@@ -19,11 +20,12 @@ from .phantombuild import (
 )
 
 __all__ = [
-    'get_phantom',
-    'checkout_phantom_version',
-    'patch_phantom',
+    'build_and_setup',
     'build_phantom',
-    'setup_calculation',
+    'checkout_phantom_version',
+    'get_phantom',
+    'patch_phantom',
     'schedule_job',
+    'setup_calculation',
 ]
 __version__ = '0.1.4'
