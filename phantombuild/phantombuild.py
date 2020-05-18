@@ -553,7 +553,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
     --------
     Read a config file and set up runs.
 
-    >>> runs = read_toml('path_to_config_file.toml')
+    >>> runs = read_config('path_to_config_file.toml')
     >>> for run in runs:
     ...     build_and_setup(**run)
     """
@@ -584,7 +584,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
 
 
 def write_config(filename: Union[Path, str]):
-    """Write a phantombuild (default) config file.
+    """Write a phantombuild config file template.
 
     Parameters
     ----------

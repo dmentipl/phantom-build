@@ -1,3 +1,23 @@
+# This is a phantombuild config file
+# It is a TOML file, see https://github.com/toml-lang/toml
+
+# [phantom]
+#
+# The first section contains information required to build Phantom. You must
+# provide:
+#
+# - path: the path to where the Phantom repository will live
+# - setup: the Phantom SETUP Makefile variable
+# - system: the Phantom SYSTEM Makefile variable
+#
+# You can optionally provide:
+#
+# - version: the Phantom version to use via a git commit hash
+# - patches: a list of paths to patch files if you wish to modify Phantom
+# - extra_make_flags: a list of extra Phantom Makefile flags
+# - hdf5_path: the path to the HDF5 installation; this directory should have
+#   include and lib as sub-directories
+
 [phantom]
 path = "~/repos/phantom"
 setup = "disc"
@@ -9,6 +29,21 @@ patches = [
 ]
 extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=no"]
 hdf5_path = "/usr/local/opt/hdf5"
+
+# [[runs]]
+#
+# The follow sections contain information for each run you wish to set up. You
+# must provide:
+#
+# - prefix: the Phantom run prefix, e.g. files will be named prefix_00000.h5...
+# - path: the path to the run directory
+# - setup_file: the path to the phantomsetup .setup file
+# - in_file: the path to the phantom .in file
+#
+# You can optionally provide:
+#
+# - job_script: the path to a Slurm job script if you wish to submit the run to
+#   a Slurm job scheduler
 
 [[runs]]
 prefix = "disc"
