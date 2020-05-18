@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 import click
+
 from .phantombuild import build_and_setup
 
 
@@ -15,7 +16,7 @@ from .phantombuild import build_and_setup
     'names, e.g. prefix_00000.h5.',
 )
 @click.option(
-    '--run-dir',
+    '--run-path',
     multiple=True,
     required=True,
     help='Path to run directory. Can provide multiple run directories, one per run.',
@@ -55,7 +56,7 @@ from .phantombuild import build_and_setup
     'comma-separated list. E.g. --phantom-extra-flags ISOTHERMAL=yes,DUST=yes.',
 )
 @click.option(
-    '--phantom-dir',
+    '--phantom-path',
     required=False,
     help='Path to Phantom source code. This specifies the location to clone, '
     'checkout, patch, and compile Phantom. Defaults to phantom in the present working '
@@ -74,23 +75,23 @@ from .phantombuild import build_and_setup
     help='Path to Phantom patch file. Can specify multiple patch files.',
 )
 @click.option(
-    '--phantom-hdf5-dir',
+    '--hdf5-path',
     required=False,
     help='Location of HDF5 library. This option is required to compile Phantom with '
     'HDF5. This directory must contain both the HDF5 include and lib directories.',
 )
 def main(
     run_prefix: str,
-    run_dir: Tuple[str],
+    run_path: Tuple[str],
     run_setup_file: Tuple[str],
     run_in_file: Tuple[str],
     phantom_setup: str,
     phantom_system: str,
-    phantom_extra_flags: str,
-    phantom_dir: str = None,
+    phantom_extra_options: str,
+    phantom_path: str = None,
     phantom_version: str = None,
     phantom_patch: Tuple[str] = None,
-    phantom_hdf5_dir: str = None,
+    hdf5_path: str = None,
     run_job_script: str = None,
 ):
     """Compile Phantom and setup runs.
@@ -101,34 +102,34 @@ def main(
     Makefile options. Then you can set up one or more Phantom runs, and
     optionally schedule then with Slurm.
     """
-    if not (len(run_dir) == len(run_setup_file) == len(run_in_file)):
+    if not (len(run_path) == len(run_setup_file) == len(run_in_file)):
         raise ValueError(
-            'must supply the same number of run-dir, run-setup-file, '
+            'must supply the same number of run-path, run-setup-file, '
             'and run-in-file options'
         )
-    if phantom_dir is None:
-        phantom_dir = 'phantom'
+    if phantom_path is None:
+        phantom_path = 'phantom'
     if phantom_patch is not None:
         _phantom_patch: List[Union[Path, str]] = list(phantom_patch)
-    if phantom_extra_flags is not None:
-        _phantom_extra_flags = _convert_make_options_to_dict(phantom_extra_flags)
+    if phantom_extra_options is not None:
+        _phantom_extra_options = _convert_make_options_to_dict(phantom_extra_options)
 
     # Loop over runs
-    for _run_dir, _setup_file, _in_file in zip(run_dir, run_setup_file, run_in_file):
+    for _run_path, _setup_file, _in_file in zip(run_path, run_setup_file, run_in_file):
 
         build_and_setup(
             prefix=run_prefix,
-            run_dir=_run_dir,
             setup_file=_setup_file,
             in_file=_in_file,
+            run_path=_run_path,
             job_script=run_job_script,
-            phantom_dir=phantom_dir,
+            phantom_path=phantom_path,
             phantom_version=phantom_version,
             phantom_patches=_phantom_patch,
             phantom_setup=phantom_setup,
             phantom_system=phantom_system,
-            phantom_extra_flags=_phantom_extra_flags,
-            hdf5_dir=phantom_hdf5_dir,
+            phantom_extra_options=_phantom_extra_options,
+            hdf5_path=hdf5_path,
         )
 
 
