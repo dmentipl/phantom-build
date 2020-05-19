@@ -62,7 +62,6 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     # Checkout particular commit
     version = '6666c55f'
     phantombuild.checkout_phantom_version(path=phantom_path, version=version)
-    )
     ```
 
 3. Then, apply your patch.
