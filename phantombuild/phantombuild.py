@@ -408,9 +408,11 @@ def schedule_job(run_path: Union[Path, str], job_file: Union[Path, str]):
     bool
         Success or fail as boolean.
     """
-    shutil.copy(job_file, run_path)
+    _run_path = _resolved_path(run_path)
+    _job_file = _resolved_path(job_file)
+    shutil.copy(_job_file, _run_path)
     try:
-        subprocess.run(['sbatch', job_file], cwd=run_path, check=True)
+        subprocess.run(['sbatch', _job_file], cwd=_run_path, check=True)
     except FileNotFoundError:
         msg = 'sbatch not available'
         logger.error(msg)

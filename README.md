@@ -99,7 +99,7 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     prefix = 'disc'
     setup_file = '~/repos/paper/disc_a.setup'
     in_file = '~/repos/paper/disc_a.in'
-    run_path = '~/runs/mydisc_a'
+    run_path = '~/runs/disc_a'
 
     # Set up calculation
     phantombuild.setup_calculation(
