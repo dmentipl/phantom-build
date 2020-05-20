@@ -563,7 +563,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
         kwargs = copy.copy(_kwargs)
         kwargs['run_path'] = run['path']
         for key in run_keys:
-            kwargs[key] = run[key]
+            kwargs[key] = run.get(key)
         kwargs_list.append(kwargs)
 
     return kwargs_list
