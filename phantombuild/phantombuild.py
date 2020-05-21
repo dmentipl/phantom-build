@@ -85,6 +85,11 @@ def get_phantom(path: Union[Path, str]) -> bool:
     -------
     bool
         Success or fail as boolean.
+
+    Raises
+    ------
+    RepoError
+        If the repository can not be cloned.
     """
     _path = _resolved_path(path)
     logger.info('Getting Phantom repository')
@@ -144,6 +149,11 @@ def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
     -------
     bool
         Success or fail as boolean.
+
+    Raises
+    ------
+    RepoError
+        If the required version cannot be checked out.
     """
     _path = _resolved_path(path)
     logger.info('Getting required Phantom version')
@@ -206,6 +216,11 @@ def patch_phantom(path: Union[Path, str], patch: Union[Path, str]) -> bool:
     -------
     bool
         Success or fail as boolean.
+
+    Raises
+    ------
+    PatchError
+        If the patch cannot be applied.
     """
     _path = _resolved_path(path)
     _patch = _resolved_path(patch)
@@ -253,6 +268,13 @@ def build_phantom(
     -------
     bool
         Success or fail as boolean.
+
+    Raises
+    ------
+    CompileError
+        If phantom or phantomsetup cannot be compiled.
+    HDF5LibraryNotFound
+        If the HDF5 library cannot be located.
     """
     _path = _resolved_path(path)
     logger.info('Building Phantom')
@@ -347,6 +369,11 @@ def setup_calculation(
     bool
         Success or fail as boolean.
 
+    Raises
+    ------
+    SetupError
+        If the run cannot be set up.
+
     Notes
     -----
     The parameters prefix, setup_file, and in_file must be consistently
@@ -408,6 +435,11 @@ def schedule_job(run_path: Union[Path, str], job_file: Union[Path, str]):
     -------
     bool
         Success or fail as boolean.
+
+    Raises
+    ------
+    ScheduleError
+        If the run cannot be scheduled.
     """
     _run_path = _resolved_path(run_path)
     _job_file = _resolved_path(job_file)
