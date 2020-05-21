@@ -169,9 +169,9 @@ def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
         stdout=subprocess.PIPE,
         text=True,
     ).stdout.strip()
+    logger.info(f'Git commit hash: {short_hash}')
     if phantom_git_commit_hash != version:
         logger.info('Checking out required Phantom version')
-        logger.info(f'Git commit hash: {short_hash}')
         result = subprocess.run(['git', 'checkout', version], cwd=_path)
         if result.returncode != 0:
             msg = 'Failed to checkout required version'
@@ -181,7 +181,6 @@ def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
             logger.info('Successfully checked out required version')
     else:
         logger.info('Required version of Phantom already checked out')
-        logger.info(f'Git commit hash: {short_hash}')
 
     # Check if clean
     git_status = subprocess.run(
@@ -279,6 +278,12 @@ def build_phantom(
     """
     _path = _resolved_path(path)
     logger.info('Building Phantom')
+    logger.info(f'setup: {setup}')
+    logger.info(f'system: {system}')
+    if hdf5_path is not None:
+        logger.info(f'hdf5_path: {hdf5_path}')
+    if extra_options is not None:
+        logger.info(f'extra_options: {extra_options}')
 
     make_command = ['make', 'SETUP=' + setup, 'SYSTEM=' + system]
 
@@ -385,6 +390,10 @@ def setup_calculation(
     _in_file = _resolved_path(in_file)
     _phantom_path = _resolved_path(phantom_path)
     logger.info('Setting up Phantom calculation')
+    logger.info(f'prefix: {prefix}')
+    logger.info(f'setup_file: {_setup_file}')
+    logger.info(f'in_file: {_in_file}')
+    logger.info(f'run_path: {_run_path}')
 
     if not _run_path.exists():
         _run_path.mkdir(parents=True)
@@ -415,7 +424,6 @@ def setup_calculation(
         raise SetupError(msg)
     else:
         logger.info('Successfully set up Phantom calculation')
-        logger.info(f'run_path: {_run_path}')
 
     shutil.copy(_in_file, _run_path)
 
