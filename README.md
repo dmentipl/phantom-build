@@ -21,7 +21,7 @@ pip install phantombuild
 Requirements
 ------------
 
-Python 3.7+. [Click](https://click.palletsprojects.com/), [tomlkit](https://github.com/sdispater/tomlkit).
+Python 3.7+ with [tomlkit](https://github.com/sdispater/tomlkit), [jinja](https://jinja.palletsprojects.com/), and [click](https://click.palletsprojects.com/).
 
 Usage
 -----
