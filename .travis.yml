@@ -9,7 +9,7 @@ addons:
       - gfortran
 
 install:
-  - pip install black click coverage coveralls isort mypy pytest tomlkit
+  - pip install black click coverage coveralls isort jinja2 mypy pytest tomlkit
 
 script:
   - python -m coverage run -m pytest

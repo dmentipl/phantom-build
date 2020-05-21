@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Union
 
 import tomlkit
+from jinja2 import Template
 
 
 class RepoError(Exception):
@@ -544,8 +545,12 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
     ...     build_and_setup(**run)
     """
     _filename = _resolved_path(filename)
+
     with open(_filename, mode='r') as fp:
-        data = tomlkit.loads(fp.read())
+        file = fp.read()
+
+    template = Template(file)
+    data = tomlkit.loads(template.render())
 
     phantom_keys = ('path', 'setup', 'system', 'version', 'patches')
     run_keys = ('prefix', 'setup_file', 'in_file', 'job_script')

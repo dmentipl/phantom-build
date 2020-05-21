@@ -13,6 +13,8 @@ version = re.search(
 
 long_description = (pathlib.Path(__file__).parent / 'README.md').read_text()
 
+install_requires = ['click', 'jinja2', 'tomlkit']
+
 setup(
     name='phantombuild',
     version=version,
@@ -23,7 +25,7 @@ setup(
     description='phantom-build is designed to make building Phantom easier',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    install_requires=['click', 'tomlkit'],
+    install_requires=install_requires,
     include_package_data=True,
     python_requires='>=3.7',
     classifiers=[
