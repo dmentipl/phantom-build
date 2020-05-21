@@ -20,7 +20,7 @@ setup(
     packages=['phantombuild'],
     url='http://github.com/dmentipl/phantom-build',
     license='MIT',
-    description='Phantom build',
+    description='phantom-build is designed to make building Phantom easier',
     long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=['click', 'tomlkit'],
