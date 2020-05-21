@@ -2,6 +2,7 @@
 
 import copy
 import logging
+import os
 import pathlib
 import shutil
 import subprocess
@@ -582,7 +583,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
         file = fp.read()
 
     template = Template(file)
-    data = tomlkit.loads(template.render())
+    data = tomlkit.loads(template.render(env=os.environ))
 
     phantom_keys = ('path', 'setup', 'system', 'version', 'patches')
     run_keys = ('prefix', 'setup_file', 'in_file', 'job_script')
