@@ -387,7 +387,7 @@ def setup_calculation(
         raise SetupError(msg)
     else:
         logger.info('Successfully set up Phantom calculation')
-        logger.info(f'run_path: {run_path}')
+        logger.info(f'run_path: {_run_path}')
 
     shutil.copy(_in_file, _run_path)
 
