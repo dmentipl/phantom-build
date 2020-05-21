@@ -2,8 +2,7 @@
 
 import click
 
-from . import phantombuild
-from . import __version__
+from . import __version__, phantombuild
 
 
 @click.group()
