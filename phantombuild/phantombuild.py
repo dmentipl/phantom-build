@@ -450,11 +450,13 @@ def schedule_job(run_path: Union[Path, str], job_file: Union[Path, str]):
     ScheduleError
         If the run cannot be scheduled.
     """
+    logger.info('Scheduling job with Slurm')
     _run_path = _resolved_path(run_path)
     _job_file = _resolved_path(job_file)
     shutil.copy(_job_file, _run_path)
     try:
         subprocess.run(['sbatch', _job_file], cwd=_run_path, check=True)
+        logger.info('Scheduled job successfully')
     except FileNotFoundError:
         msg = 'sbatch not available'
         logger.error(msg)
@@ -586,6 +588,8 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
     ...     build_and_setup(**run)
     """
     _filename = _resolved_path(filename)
+    logger.info('Reading config file')
+    logger.info(f'config: {_filename}')
 
     with open(_filename, mode='r') as fp:
         file = fp.read()
@@ -612,6 +616,7 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
             kwargs[key] = run.get(key)
         kwargs_list.append(kwargs)
 
+    logger.info('Successfully read config file')
     return kwargs_list
 
 
