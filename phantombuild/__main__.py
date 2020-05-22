@@ -2,7 +2,8 @@
 
 import click
 
-from . import __version__, phantombuild
+from . import __version__
+from .phantombuild import build_phantom, read_config, setup_calculation, write_config
 
 
 @click.group()
@@ -18,7 +19,20 @@ def cli():
 @click.argument('filename')
 def template(filename):
     """Write a template config file to FILENAME."""
-    phantombuild.write_config(filename)
+    write_config(filename)
+
+
+@cli.command()
+@click.argument('config', nargs=-1, type=click.Path(exists=True))
+@click.pass_context
+def build(ctx, config):
+    """Build Phantom."""
+    if len(config) == 0:
+        click.echo(ctx.get_help())
+        ctx.exit()
+    for _config in config:
+        conf = read_config(_config)
+        build_phantom(**conf['phantom'])
 
 
 @cli.command()
@@ -35,9 +49,12 @@ def setup(ctx, config):
         click.echo(ctx.get_help())
         ctx.exit()
     for _config in config:
-        runs = phantombuild.read_config(_config)
-        for run in runs:
-            phantombuild.build_and_setup(**run)
+        conf = read_config(_config)
+        build_phantom(**conf['phantom'])
+        phantom_path = conf['phantom']['path']
+        for run in conf.get('runs', []):
+            run_path = run.pop('path')
+            setup_calculation(run_path=run_path, phantom_path=phantom_path, **run)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,5 @@
 """Phantom build."""
 
-import copy
 import logging
 import os
 import pathlib
@@ -240,7 +239,10 @@ def patch_phantom(path: Union[Path, str], patch: Union[Path, str]) -> bool:
 
 
 def build_phantom(
+    *,
     path: Union[Path, str],
+    version: str = None,
+    patches: List[Union[Path, str]] = None,
     setup: str,
     system: str,
     hdf5_path: Union[Path, str] = None,
@@ -252,6 +254,10 @@ def build_phantom(
     ----------
     path
         The path to the Phantom repository.
+    version
+        The required Phantom version specified by git commit hash.
+    patches
+        A list of paths to patch files, if required.
     setup
         The Phantom setup, e.g. 'disc', 'dustybox', etc.
     system
@@ -277,6 +283,20 @@ def build_phantom(
         If the HDF5 library cannot be located.
     """
     _path = _resolved_path(path)
+
+    # Get Phantom
+    get_phantom(path=_path)
+
+    # Checkout required version (if required)
+    if version is not None:
+        checkout_phantom_version(path=_path, version=version)
+
+    # Apply patches (if required)
+    if patches is not None:
+        for patch in patches:
+            _patch = _resolved_path(patch)
+            patch_phantom(path=_path, patch=_patch)
+
     logger.info('Building Phantom')
     logger.info(f'setup: {setup}')
     logger.info(f'system: {system}')
@@ -347,12 +367,53 @@ def build_phantom(
     return True
 
 
+def schedule_job(run_path: Union[Path, str], job_script: Union[Path, str]):
+    """Schedule the calculation with Slurm.
+
+    Parameters
+    ----------
+    run_path
+        The path to the directory in which Phantom will output data.
+    job_script
+        The path to the Slurm batch script file.
+
+    Returns
+    -------
+    bool
+        Success or fail as boolean.
+
+    Raises
+    ------
+    ScheduleError
+        If the run cannot be scheduled.
+    """
+    logger.info('Scheduling job with Slurm')
+    _run_path = _resolved_path(run_path)
+    _job_script = _resolved_path(job_script)
+    shutil.copy(_job_script, _run_path)
+    try:
+        subprocess.run(['sbatch', _job_script], cwd=_run_path, check=True)
+        logger.info('Scheduled job successfully')
+    except FileNotFoundError:
+        msg = 'sbatch not available'
+        logger.error(msg)
+        raise ScheduleError(msg)
+    except subprocess.CalledProcessError:
+        msg = 'Scheduling failed'
+        logger.error(msg)
+        raise ScheduleError(msg)
+
+    return True
+
+
 def setup_calculation(
+    *,
     prefix: str,
     setup_file: Union[Path, str],
     in_file: Union[Path, str],
     run_path: Union[Path, str],
     phantom_path: Union[Path, str],
+    job_script: Union[Path, str] = None,
 ) -> bool:
     """Set up Phantom calculation.
 
@@ -369,6 +430,8 @@ def setup_calculation(
         The path to the directory in which Phantom will output data.
     phantom_path
         The path to the Phantom repository.
+    job_script
+        The path to the Slurm batch script file, if required.
 
     Returns
     -------
@@ -427,147 +490,15 @@ def setup_calculation(
 
     shutil.copy(_in_file, _run_path)
 
-    return True
-
-
-def schedule_job(run_path: Union[Path, str], job_file: Union[Path, str]):
-    """Schedule the calculation with Slurm.
-
-    Parameters
-    ----------
-    run_path
-        The path to the directory in which Phantom will output data.
-    job_file
-        The path to the Slurm batch script file.
-
-    Returns
-    -------
-    bool
-        Success or fail as boolean.
-
-    Raises
-    ------
-    ScheduleError
-        If the run cannot be scheduled.
-    """
-    logger.info('Scheduling job with Slurm')
-    _run_path = _resolved_path(run_path)
-    _job_file = _resolved_path(job_file)
-    shutil.copy(_job_file, _run_path)
-    try:
-        subprocess.run(['sbatch', _job_file], cwd=_run_path, check=True)
-        logger.info('Scheduled job successfully')
-    except FileNotFoundError:
-        msg = 'sbatch not available'
-        logger.error(msg)
-        raise ScheduleError(msg)
-    except subprocess.CalledProcessError:
-        msg = 'Scheduling failed'
-        logger.error(msg)
-        raise ScheduleError(msg)
-
-    return True
-
-
-def build_and_setup(
-    *,
-    prefix: str,
-    setup_file: Union[Path, str],
-    in_file: Union[Path, str],
-    run_path: Union[Path, str],
-    job_script: Union[Path, str] = None,
-    phantom_path: Union[Path, str],
-    phantom_version: str = None,
-    phantom_patches: List[Union[Path, str]] = None,
-    phantom_setup: str,
-    phantom_system: str,
-    phantom_extra_options: Dict[str, str],
-    hdf5_path: Union[Path, str] = None,
-):
-    """Build Phantom and setup run.
-
-    Get a copy of Phantom, checkout a required version, apply patches,
-    and compile. Then run phantomsetup to set up the calculation, and
-    optionally submit the run as a job in Slurm.
-
-    Parameters
-    ----------
-    prefix
-        Calculation prefix, i.e. name. E.g. if prefix is 'disc' then
-        Phantom snapshots will be names disc_00000.h5, etc.
-    run_path
-        The path to the directory in which Phantom will output data.
-    setup_file
-        The path to the Phantom prefix.setup file.
-    in_file
-        The path to the Phantom prefix.in file.
-    job_script
-        The path to the Slurm batch script file, if required.
-    phantom_path
-        The path to the Phantom repository.
-    phantom_version
-        The required Phantom git commit hash, if required.
-    phantom_patches
-        A list of paths to patch files, if required.
-    phantom_setup
-        The Phantom setup, e.g. 'disc', 'dustybox', etc.
-    phantom_system
-        The compiler as specified in the Phantom makefile, e.g.
-        'gfortran' or 'ifort'.
-    phantom_extra_options
-        Extra options to pass to make. This values in this dictionary
-        should be strings only.
-    hdf5_path
-        The path to the HDF5 installation, or if None, do not compile
-        with HDF5.
-
-    Returns
-    -------
-    bool
-        Success or fail as boolean.
-    """
-    # Get Phantom
-    get_phantom(path=phantom_path)
-
-    # Checkout required version (if required)
-    if phantom_version is not None:
-        checkout_phantom_version(path=phantom_path, version=phantom_version)
-
-    # Apply patches (if required)
-    if phantom_patches is not None:
-        for patch in phantom_patches:
-            patch_phantom(path=phantom_path, patch=patch)
-
-    # Compile Phantom
-    build_phantom(
-        path=phantom_path,
-        setup=phantom_setup,
-        system=phantom_system,
-        hdf5_path=hdf5_path,
-        extra_options=phantom_extra_options,
-    )
-
-    # Set up calculation
-    setup_calculation(
-        prefix=prefix,
-        setup_file=setup_file,
-        in_file=in_file,
-        run_path=run_path,
-        phantom_path=phantom_path,
-    )
-
-    # Schedule calculation
+    # Schedule calculation (if required)
     if job_script is not None:
-        schedule_job(run_path=run_path, job_file=job_script)
+        schedule_job(run_path=_run_path, job_script=job_script)
 
     return True
 
 
-def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
+def read_config(filename: Union[Path, str]) -> Dict[str, Any]:
     """Read a phantombuild config file.
-
-    Read a phantombuild config file and return a list of dictionaries
-    with keyword arguments to pass to build_and_setup.
 
     Parameters
     ----------
@@ -576,16 +507,28 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
 
     Returns
     -------
-    list of dict
-        One dictionary of build_and_setup keyword arguments per run.
+    dict
+        The dictionary contains a dictionary of phantom build options,
+        and a list of dictionaries of run setup options:
+            {
+                'phantom': ...,
+                'runs': [
+                    ...,
+                    ...,
+                ]
+            }
+        The 'runs' list may be empty.
 
     Examples
     --------
-    Read a config file and set up runs.
+    Read a config file and set up multiple runs.
 
-    >>> runs = read_config('path_to_config_file.toml')
-    >>> for run in runs:
-    ...     build_and_setup(**run)
+    >>> config = read_config('path_to_config_file.toml')
+    >>> build_phantom(**config['phantom'])
+    >>> phantom_path = config['phantom']['path']
+    >>> for run in config['runs']:
+    ...     run_path = run.pop('path')
+    ...     setup_calculation(run_path=run_path, phantom_path=phantom_path, **run)
     """
     _filename = _resolved_path(filename)
     logger.info('Reading config file')
@@ -597,27 +540,33 @@ def read_config(filename: Union[Path, str]) -> List[Dict[str, Any]]:
     template = Template(file)
     data = tomlkit.loads(template.render(env=os.environ))
 
-    phantom_keys = ('path', 'setup', 'system', 'version', 'patches')
-    run_keys = ('prefix', 'setup_file', 'in_file', 'job_script')
+    phantom_keys = ('path', 'setup', 'system', 'version', 'patches', 'hdf5_path')
+    run_keys = ('path', 'prefix', 'setup_file', 'in_file', 'job_script')
 
-    kwargs_list = list()
+    config: Dict[str, Any] = dict()
 
-    _kwargs = {f'phantom_{key}': data['phantom'].get(key) for key in phantom_keys}
-    _kwargs['hdf5_path'] = data['phantom'].get('hdf5_path')
-    _kwargs['phantom_extra_options'] = {
+    d = {key: data['phantom'].get(key) for key in phantom_keys}
+    d['extra_options'] = {
         item.split('=')[0]: item.split('=')[1]
-        for item in data['phantom'].get('extra_make_flags')
+        for item in data['phantom'].get('extra_options', [])
     }
+    config['phantom'] = d
 
-    for run in data['runs']:
-        kwargs = copy.copy(_kwargs)
-        kwargs['run_path'] = run['path']
+    runs = data.get('runs')
+    if runs is None:
+        logger.info('Successfully read config file')
+        return config
+
+    l = list()
+    for run in runs:
+        d = dict()
         for key in run_keys:
-            kwargs[key] = run.get(key)
-        kwargs_list.append(kwargs)
+            d[key] = run.get(key)
+        l.append(d)
+    config['runs'] = l
 
     logger.info('Successfully read config file')
-    return kwargs_list
+    return config
 
 
 def write_config(filename: Union[Path, str]):

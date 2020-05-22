@@ -14,7 +14,7 @@
 #
 # - version: the Phantom version to use via a git commit hash
 # - patches: a list of paths to patch files if you wish to modify Phantom
-# - extra_make_flags: a list of extra Phantom Makefile flags
+# - extra_options: a list of extra Phantom Makefile options
 # - hdf5_path: the path to the HDF5 installation; this directory should have
 #   include and lib as sub-directories
 
@@ -27,7 +27,7 @@ patches = [
     "phantom-d9a5507f-1.patch",
     "phantom-d9a5507f-2.patch",
 ]
-extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=no"]
+extra_options = ["MAXP=10000000", "ISOTHERMAL=no"]
 hdf5_path = "/usr/local/opt/hdf5"
 
 # [[runs]]

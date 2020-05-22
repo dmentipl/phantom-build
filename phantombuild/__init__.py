@@ -10,7 +10,6 @@ Daniel Mentiplay, 2019-2020.
 """
 
 from .phantombuild import (
-    build_and_setup,
     build_phantom,
     checkout_phantom_version,
     get_phantom,
