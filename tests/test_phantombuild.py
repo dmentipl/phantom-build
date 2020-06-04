@@ -15,7 +15,7 @@ from phantombuild.phantombuild import (
 
 
 def test_get_phantom():
-    """Test getting Phantom from bitbucket."""
+    """Test getting Phantom from GitHub."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         path = Path(tmpdirname) / 'phantom'
         pb.get_phantom(path)
@@ -91,13 +91,16 @@ def test_build_phantom():
 def test_setup_calculation():
     """Test setting up Phantom calculation."""
     with tempfile.TemporaryDirectory() as tmpdirname:
+        version = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
         phantom_path = Path(tmpdirname) / 'phantom'
         run_path = Path(tmpdirname) / 'run_path'
         input_dir = Path(__file__).parent / 'stub'
         in_file = input_dir / 'disc.in'
         setup_file = input_dir / 'disc.setup'
         pb.get_phantom(phantom_path)
-        pb.build_phantom(path=phantom_path, setup='disc', system='gfortran')
+        pb.build_phantom(
+            path=phantom_path, version=version, setup='disc', system='gfortran'
+        )
         pb.setup_calculation(
             prefix='disc',
             setup_file=setup_file,

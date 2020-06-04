@@ -13,6 +13,14 @@ from typing import Any, Dict, List, Union
 import tomlkit
 from jinja2 import Template
 
+REPO_URL = 'https://github.com/danieljprice/phantom.git'
+GIT_URLS = [
+    'git@github.com:danieljprice/phantom',
+    'git@github.com:danieljprice/phantom.git',
+    'https://github.com/danieljprice/phantom',
+    'https://github.com/danieljprice/phantom.git',
+]
+
 
 class RepoError(Exception):
     """Exception for dealing with Phantom git repository."""
@@ -98,13 +106,7 @@ def get_phantom(path: Union[Path, str]) -> bool:
     if not _path.exists():
         logger.info('Cloning fresh copy of Phantom')
         result = subprocess.run(
-            [
-                'git',
-                'clone',
-                'https://bitbucket.org/danielprice/phantom.git',
-                _path.stem,
-            ],
-            cwd=_path.parent,
+            ['git', 'clone', REPO_URL, _path.stem], cwd=_path.parent,
         )
         if result.returncode != 0:
             logger.error('Phantom clone failed')
@@ -119,12 +121,7 @@ def get_phantom(path: Union[Path, str]) -> bool:
                 stdout=subprocess.PIPE,
                 text=True,
             ).stdout.strip()
-            in [
-                'git@bitbucket.org:danielprice/phantom',
-                'git@bitbucket.org:danielprice/phantom.git',
-                'https://bitbucket.org/danielprice/phantom',
-                'https://bitbucket.org/danielprice/phantom.git',
-            ]
+            in GIT_URLS
         ):
             msg = f'{path} is not Phantom'
             logger.error(msg)

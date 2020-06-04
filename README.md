@@ -181,7 +181,7 @@ Details
 
 The phantom-build functions `build_phantom` and `setup_calculation` rely on the following functions:
 
-- Use `get_phantom` to clone Phantom from the [bitbucket repository](https://bitbucket.org/danielprice/phantom), or to check if already cloned.
+- Use `get_phantom` to clone Phantom from the [GitHub repository](https://github.com/danieljprice/phantom), or to check if already cloned.
 - Use `checkout_phantom_version` to check out a particular Phantom version based on a git commit hash.
 - Use `patch_phantom` to apply patches.
 - Use `schedule_job` to schedule a calculation with a job scheduler, e.g. Slurm.
