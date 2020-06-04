@@ -4,7 +4,7 @@ Phantom build
 
 phantombuild is designed to make building Phantom easier.
 
-See [Phantom](https://phantomsph.bitbucket.io/) for details on Phantom.
+See [Phantom](https://github.com/danieljprice/phantom) for details on Phantom.
 
 Daniel Mentiplay, 2019-2020.
 """
