@@ -3,11 +3,22 @@ Phantom build
 
 > phantom-build: make building Phantom easier.
 
-The main aim is to have reproducible [Phantom](https://phantomsph.bitbucket.io/) builds for writing reproducible papers.
+The main use case for phantom-build is to make it easy to generate reproducible [Phantom](https://phantomsph.bitbucket.io/) builds for writing reproducible papers.
 
 [![Build Status](https://travis-ci.org/dmentipl/phantom-build.svg?branch=master)](https://travis-ci.org/dmentipl/phantom-build)
 [![Coverage Status](https://coveralls.io/repos/github/dmentipl/phantom-build/badge.svg?branch=master)](https://coveralls.io/github/dmentipl/phantom-build?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/phantombuild)](https://pypi.org/project/phantombuild/)
+
+Table of contents
+-----------------
+
+* [Install](#install)
+* [Requirements](#requirements)
+* [Usage](#usage)
+    * [From the command line](#from-the-command-line)
+    * [Using Python](#using-python)
+* [Details](#details)
+    * [A reproducible Phantom paper](#a-reproducible-phantom-paper)
 
 Install
 -------
