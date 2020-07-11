@@ -4,7 +4,8 @@ Phantom build
 
 phantombuild is designed to make building Phantom easier.
 
-See [Phantom](https://github.com/danieljprice/phantom) for details on Phantom.
+See [Phantom](https://github.com/danieljprice/phantom) for details on
+Phantom.
 
 Daniel Mentiplay, 2019-2020.
 """
@@ -31,4 +32,5 @@ __all__ = [
     'setup_calculation',
     'write_config',
 ]
-__version__ = '0.1.4'
+
+__version__ = '0.2.0'
