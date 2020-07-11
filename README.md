@@ -19,6 +19,9 @@ Table of contents
     * [Using Python](#using-python)
 * [Details](#details)
     * [A reproducible Phantom paper](#a-reproducible-phantom-paper)
+* [See also](#see-also)
+    * [phantom-config](#phantom-config)
+    * [phantom-setup](#phantom-setup)
 
 Install
 -------
@@ -259,4 +262,15 @@ Say you want to have a reproducible Phantom build for a paper. You want to work 
     phantombuild.schedule_job(run_path=run_path, job_file=job_file)
     ```
 
-You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config). For setting up Phantom simulations in pure Python (no Fortran required), see (the work in progress) [phantom-setup](https://github.com/dmentipl/phantom-setup).
+You can write the above into a script included with the git repository of the paper to help make your paper reproducible. Of course, you also need to include all the Phantom `.in` and `.setup` files. For managing those files, see [phantom-config](https://github.com/dmentipl/phantom-config).
+
+See also
+--------
+
+### phantom-config
+
+[phantom-config](https://github.com/dmentipl/phantom-config) is a Pythoon package designed to parse, convert, modify, and generate Phantom config files. It also facilitates generating multiple files from dictionaries for parameter sweeps.
+
+### phantom-setup
+
+[phantom-setup](https://github.com/dmentipl/phantom-setup) is a (work in progress) Python package designed to set up Phantom initial conditions in pure Python, i.e. with no Fortran dependencies. It uses NumPy and Numba to achieve Fortran like performance for computationally expensive operations.
