@@ -14,12 +14,12 @@ install:
 
 script:
   - python -m coverage run -m pytest
-  - isort --check-only -rc
-  - black --check --skip-string-normalization .
-  - mypy --ignore-missing-imports phantombuild tests
+  - python -m isort --check-only .
+  - python -m black --check --skip-string-normalization .
+  - python -m mypy --ignore-missing-imports phantombuild tests
 
 after_success:
-  - coveralls
+  - python -m coveralls
 
 notifications:
   email:

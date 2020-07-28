@@ -29,7 +29,7 @@ Install
 Install phantom-build with pip
 
 ```bash
-pip install phantombuild
+python -m pip install phantombuild
 ```
 
 Requirements
