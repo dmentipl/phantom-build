@@ -5,7 +5,7 @@ Phantom build
 
 The main use case for phantom-build is to make it easy to generate reproducible [Phantom](https://github.com/danieljprice/phantom) builds for writing reproducible papers.
 
-[![Build Status](https://travis-ci.org/dmentipl/phantom-build.svg?branch=master)](https://travis-ci.org/dmentipl/phantom-build)
+[![Build Status](https://github.com/dmentipl/phantom-build/actions/workflows/tests.yml/badge.svg)](https://github.com/dmentipl/phantom-build/actions)
 [![Coverage Status](https://coveralls.io/repos/github/dmentipl/phantom-build/badge.svg?branch=master)](https://coveralls.io/github/dmentipl/phantom-build?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/phantombuild)](https://pypi.org/project/phantombuild/)
 
