@@ -19,7 +19,7 @@ setup(
     name='phantombuild',
     version=version,
     author='Daniel Mentiplay',
-    author_email='d.mentiplay@gmail.com',
+    author_email='daniel.mentiplay@protonmail.com',
     packages=['phantombuild'],
     url='http://github.com/dmentipl/phantom-build',
     license='MIT',
