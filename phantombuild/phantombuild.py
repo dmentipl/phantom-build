@@ -106,7 +106,8 @@ def get_phantom(path: Union[Path, str]) -> bool:
     if not _path.exists():
         logger.info('Cloning fresh copy of Phantom')
         result = subprocess.run(
-            ['git', 'clone', REPO_URL, _path.stem], cwd=_path.parent,
+            ['git', 'clone', REPO_URL, _path.stem],
+            cwd=_path.parent,
         )
         if result.returncode != 0:
             logger.error('Phantom clone failed')
@@ -157,7 +158,10 @@ def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
 
     # Check git commit hash
     phantom_git_commit_hash = subprocess.run(
-        ['git', 'rev-parse', 'HEAD'], cwd=_path, stdout=subprocess.PIPE, text=True,
+        ['git', 'rev-parse', 'HEAD'],
+        cwd=_path,
+        stdout=subprocess.PIPE,
+        text=True,
     ).stdout.strip()
     short_hash = subprocess.run(
         ['git', 'rev-parse', '--short', version],
@@ -180,7 +184,10 @@ def checkout_phantom_version(path: Union[Path, str], version: str) -> bool:
 
     # Check if clean
     git_status = subprocess.run(
-        ['git', 'status', '--porcelain'], cwd=_path, stdout=subprocess.PIPE, text=True,
+        ['git', 'status', '--porcelain'],
+        cwd=_path,
+        stdout=subprocess.PIPE,
+        text=True,
     ).stdout.strip()
     if not git_status == '':
         logger.info('Cleaning repository')
