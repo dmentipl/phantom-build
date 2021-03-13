@@ -3,4 +3,5 @@ dist/*
 *.egg-info/*
 .coverage
 htmlcov
+.phantom-build.log
 .mypy_cache

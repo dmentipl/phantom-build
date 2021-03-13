@@ -13,6 +13,8 @@ from phantombuild.phantombuild import (
     RepoError,
 )
 
+VERSION = '3252f52501cac9565f9bc40527346c0e224757b9'
+
 
 def test_get_phantom():
     """Test getting Phantom from GitHub."""
@@ -30,9 +32,8 @@ def test_checkout_phantom_version_clean():
     with tempfile.TemporaryDirectory() as tmpdirname:
         path = Path(tmpdirname) / 'phantom'
         pb.get_phantom(path)
-        version = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-        pb.checkout_phantom_version(path=path, version=version)
-        pb.checkout_phantom_version(path=path, version=version)
+        pb.checkout_phantom_version(path=path, version=VERSION)
+        pb.checkout_phantom_version(path=path, version=VERSION)
 
 
 def test_checkout_phantom_version_dirty():
@@ -40,9 +41,8 @@ def test_checkout_phantom_version_dirty():
     with tempfile.TemporaryDirectory() as tmpdirname:
         path = Path(tmpdirname) / 'phantom'
         pb.get_phantom(path)
-        version = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
         (path / 'src/main/phantom.F90').unlink()
-        pb.checkout_phantom_version(path=path, version=version)
+        pb.checkout_phantom_version(path=path, version=VERSION)
 
 
 def test_phantom_patch():
@@ -50,8 +50,7 @@ def test_phantom_patch():
     with tempfile.TemporaryDirectory() as tmpdirname:
         path = Path(tmpdirname) / 'phantom'
         pb.get_phantom(path)
-        version = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-        pb.checkout_phantom_version(path=path, version=version)
+        pb.checkout_phantom_version(path=path, version=VERSION)
         patch = Path(__file__).parent / 'stub' / 'test.patch'
         pb.patch_phantom(path=path, patch=patch)
         kwargs = {'path': path, 'patch': patch}
@@ -91,7 +90,6 @@ def test_build_phantom():
 def test_setup_calculation():
     """Test setting up Phantom calculation."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        version = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
         phantom_path = Path(tmpdirname) / 'phantom'
         run_path = Path(tmpdirname) / 'run_path'
         input_dir = Path(__file__).parent / 'stub'
@@ -99,7 +97,7 @@ def test_setup_calculation():
         setup_file = input_dir / 'disc.setup'
         pb.get_phantom(phantom_path)
         pb.build_phantom(
-            path=phantom_path, version=version, setup='disc', system='gfortran'
+            path=phantom_path, version=VERSION, setup='disc', system='gfortran'
         )
         pb.setup_calculation(
             prefix='disc',
